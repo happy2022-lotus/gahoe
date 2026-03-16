@@ -11,8 +11,17 @@ import {
 } from 'firebase/firestore';
 import { MessageSquare, Users, GraduationCap, Heart, Send, Sparkles, RefreshCw, BookOpen, ShieldCheck, ArrowRight, CheckCircle2 } from 'lucide-react';
 
-// Firebase configuration from environment
-const firebaseConfig = JSON.parse(__firebase_config);
+// 사용자 제공 파이어베이스 설정 적용
+const firebaseConfig = {
+  apiKey: "AIzaSyCHu7vWWvqb8iTzh6lVct5m_JJiA6UZ4bo",
+  authDomain: "gahoe-3626b.firebaseapp.com",
+  projectId: "gahoe-3626b",
+  storageBucket: "gahoe-3626b.firebasestorage.app",
+  messagingSenderId: "9371523276",
+  appId: "1:9371523276:web:d148cf5a5d55d76d750a69",
+  measurementId: "G-RPEV7HL7GP"
+};
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -151,6 +160,8 @@ export default function App() {
     const q = collection(db, 'artifacts', appId, 'public', 'data', 'responses');
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setEntries(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => {
+      console.error("Firestore error:", error);
     });
     return () => unsubscribe();
   }, [user]);
