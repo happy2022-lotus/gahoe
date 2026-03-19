@@ -8,50 +8,98 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Pretendard', sans-serif; background-color: #F0F4F8; }
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); }
+        body { font-family: 'Pretendard', sans-serif; background-color: #F8FAFC; }
+        .glass { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
         .tab-active { background: white; color: #4F46E5; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transform: translateY(-2px); }
-        .word-item { transition: all 0.3s ease; cursor: default; display: inline-block; }
-        .word-item:hover { transform: scale(1.1); filter: brightness(1.2); }
-        .summary-box { background: rgba(79, 70, 229, 0.05); border-left: 4px solid #4F46E5; }
+        .word-item { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; display: inline-block; }
+        .word-item:hover { transform: scale(1.15) rotate(2deg); filter: brightness(1.1); }
+        .summary-box { background: linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(139, 92, 246, 0.08)); border-left: 6px solid #4F46E5; }
+        .intro-card { transition: all 0.3s ease; border: 1px solid #E2E8F0; }
+        .intro-card:hover { transform: translateY(-8px); border-color: #4F46E5; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05); }
     </style>
 </head>
 <body class="text-slate-800">
 
     <!-- INTRO SCREEN -->
-    <div id="intro-screen" class="min-h-screen flex items-center justify-center p-6">
-        <div class="max-w-xl w-full bg-white rounded-[3rem] shadow-2xl overflow-hidden animate__animated animate__fadeIn">
-            <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-12 text-center relative">
-                <div class="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-md rounded-2xl mb-6 border border-white/30">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    <div id="intro-screen" class="min-h-screen flex items-center justify-center p-4 md:p-10 bg-gradient-to-br from-slate-50 to-indigo-50">
+        <div class="max-w-6xl w-full space-y-10 animate__animated animate__fadeIn">
+            
+            <!-- Hero Header -->
+            <div class="text-center space-y-4">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-100 text-indigo-700 rounded-full font-bold text-sm tracking-widest mb-2">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
+                    </span>
+                    GAHOE MIDDLE SCHOOL
                 </div>
-                <h1 class="text-white text-3xl font-black mb-2">학교문화 책임규약</h1>
-                <p class="text-indigo-100 font-medium tracking-widest">GAHOE MIDDLE SCHOOL</p>
-            </div>
-            <div class="p-10 space-y-8">
-                <p class="text-center text-slate-600 text-lg leading-relaxed">
-                    성숙한 배움과 존중이 있는 교육을 위해<br/>
-                    가회중학교 구성원의 책임을 확인하고 다짐합니다.
+                <h1 class="text-4xl md:text-6xl font-black text-slate-900 tracking-tight">모두의 학교를 위한<br/><span class="text-indigo-600">학교문화 책임규약</span></h1>
+                <p class="text-slate-500 text-lg md:text-xl max-w-2xl mx-auto font-medium">
+                    책임규약은 우리 모두가 행복한 가회 교육 공동체를 만들기 위해<br class="hidden md:block"/> 
+                    서로의 권리와 책임을 확인하고 실천을 다짐하는 약속입니다.
                 </p>
-                <div class="space-y-3 text-sm font-semibold">
-                    <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                        <span class="text-emerald-500">✔</span> <span>서로의 권리를 존중하며 책임 있게 행동하기</span>
+            </div>
+
+            <!-- Core Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+                <!-- Card 1: Student -->
+                <div class="intro-card bg-white p-8 rounded-[2.5rem] space-y-4">
+                    <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
                     </div>
-                    <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                        <span class="text-indigo-500">✔</span> <span>건전한 학교 문화를 위한 규칙 준수하기</span>
-                    </div>
+                    <h3 class="text-xl font-bold text-slate-900">학생의 책임</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">자신의 권리를 정당하게 행사하고, 타인의 학습권과 인권을 존중하며 학교의 질서를 준수합니다.</p>
+                    <ul class="text-xs space-y-2 text-slate-600 pt-2 font-semibold">
+                        <li class="flex items-center gap-2">🔹 언어폭력 및 사이버 폭력 근절</li>
+                        <li class="flex items-center gap-2">🔹 선생님의 정당한 지도 존중</li>
+                    </ul>
                 </div>
-                <button onclick="startApp()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-bold text-xl hover:bg-indigo-600 transition-all shadow-xl">
-                    참여 시작하기
+
+                <!-- Card 2: Parent -->
+                <div class="intro-card bg-white p-8 rounded-[2.5rem] space-y-4">
+                    <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49 0 2.82.47 3.91 1.25V7c0-1.1-.9-2-2-2h-8c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v13h1.91C5.09 18.47 6.42 18 7.91 18s2.82.47 3.91 1.25V7h8v7.25c1.09-.78 2.42-1.25 3.91-1.25z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900">학부모의 책임</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">학교 교육활동을 신뢰하고 지원하며, 자녀가 타인을 존중하는 마음을 가질 수 있도록 가정에서 지도합니다.</p>
+                    <ul class="text-xs space-y-2 text-slate-600 pt-2 font-semibold">
+                        <li class="flex items-center gap-2">🔹 학교와 가정 간 긴밀한 소통</li>
+                        <li class="flex items-center gap-2">🔹 자녀의 올바른 생활습관 지도</li>
+                    </ul>
+                </div>
+
+                <!-- Card 3: School -->
+                <div class="intro-card bg-white p-8 rounded-[2.5rem] space-y-4">
+                    <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900">교직원의 책임</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">학생의 인격과 다양성을 존중하며, 공정하고 안전한 학습 환경을 조성하기 위해 최선을 다합니다.</p>
+                    <ul class="text-xs space-y-2 text-slate-600 pt-2 font-semibold">
+                        <li class="flex items-center gap-2">🔹 전문성을 바탕으로 한 생활지도</li>
+                        <li class="flex items-center gap-2">🔹 민주적인 소통과 공동체 운영</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Call to Action -->
+            <div class="flex flex-col items-center gap-6 pt-4">
+                <button onclick="startApp()" class="group relative px-12 py-6 bg-slate-900 text-white rounded-[2rem] font-bold text-2xl hover:bg-indigo-600 transition-all shadow-2xl overflow-hidden active:scale-95">
+                    <span class="relative z-10 flex items-center gap-3">
+                        참여 시작하기
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="group-hover:translate-x-1 transition-transform"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </span>
+                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </button>
+                <p class="text-slate-400 text-sm font-semibold">가회중학교 구성원 누구나 익명으로 참여할 수 있습니다.</p>
             </div>
         </div>
     </div>
 
-    <!-- MAIN APP SCREEN -->
+    <!-- MAIN APP SCREEN (Hidden by default) -->
     <div id="main-screen" class="hidden min-h-screen p-4 md:p-8 animate__animated animate__fadeIn">
         <div class="max-w-6xl mx-auto space-y-6">
-            <header class="flex justify-between items-center glass p-6 rounded-[2rem]">
+            <header class="flex justify-between items-center glass p-6 rounded-[2rem] shadow-sm">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
@@ -90,13 +138,13 @@
                 <!-- Word Cloud Card -->
                 <div class="lg:col-span-7 bg-white p-10 rounded-[3rem] shadow-xl border border-white min-h-[500px] flex flex-col">
                     <div class="flex justify-between mb-8 border-b pb-4">
-                        <h3 class="font-black text-slate-800 flex items-center gap-2">실시간 가회 키워드</h3>
+                        <h3 class="font-black text-slate-800 flex items-center gap-2 text-lg">실시간 가회 키워드</h3>
                         <span id="role-tag" class="text-[10px] bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-black uppercase tracking-widest">Student</span>
                     </div>
                     <div id="word-cloud" class="flex-1 flex flex-wrap items-center justify-center gap-6 min-h-[250px]">
                         <p class="text-slate-300 italic">약속을 등록하여 클라우드를 채워주세요!</p>
                     </div>
-                    <!-- 자동 문장 생성 영역 (Future Insight) -->
+                    <!-- 자동 문장 생성 영역 (AI Insight) -->
                     <div id="ai-insight" class="mt-8 p-6 summary-box rounded-2xl hidden animate__animated animate__fadeInUp">
                         <h4 class="text-xs font-black text-indigo-500 mb-2 tracking-tighter uppercase">✨ 우리 가회중 공동체의 다짐</h4>
                         <p id="insight-text" class="text-slate-700 font-bold text-lg italic leading-relaxed"></p>
@@ -123,7 +171,7 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-        // Firebase 설정
+        // Firebase 설정 (환경에 맞춰 유지)
         const firebaseConfig = {
             apiKey: "AIzaSyBcH1PUzFhMazQZxat54-cWz2wlvCsEPpk",
             authDomain: "gahoems.firebaseapp.com",
@@ -136,7 +184,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = 'gahoe-ms-culture-app';
+        const appId = 'gahoe-ms-culture-app-v2'; // 버전 관리
 
         let currentTab = 'student';
         let allResponses = [];
@@ -229,11 +277,11 @@
                 let sentence = "";
                 
                 if (currentTab === 'student') {
-                    sentence = `우리는 "${topWords[0]}"(와)과 "${topWords[1]}"을(를) 바탕으로 더 즐거운 가회중을 만들겠습니다.`;
+                    sentence = `우리는 "${topWords[0]}"(와)과 "${topWords[1]}"을(를) 마음속에 새기며, 성숙한 가회중 학생으로서 책임을 다하겠습니다.`;
                 } else if (currentTab === 'parent') {
-                    sentence = `우리 학부모는 "${topWords[0]}"의 마음으로 학교를 신뢰하며 "${topWords[1]}" 교육에 앞장서겠습니다.`;
+                    sentence = `우리 학부모는 "${topWords[0]}"의 가치를 믿으며, 학교와 함께 "${topWords[1]}" 교육을 위해 협력하겠습니다.`;
                 } else {
-                    sentence = `우리 교직원은 "${topWords[0]}" 가치를 실천하여 "${topWords[1]}"이(가) 가득한 교실을 가꾸겠습니다.`;
+                    sentence = `우리 교직원은 "${topWords[0]}" 실천을 최우선으로 하여, 모든 학생이 "${topWords[1]}" 안에서 성장하도록 돕겠습니다.`;
                 }
                 
                 insightText.innerText = sentence;
@@ -260,14 +308,14 @@
 
             const entries = Object.entries(counts);
             if(entries.length === 0) {
-                container.innerHTML = '<p class="text-slate-300 italic">아직 등록된 키워드가 없습니다.</p>';
+                container.innerHTML = '<p class="text-slate-300 italic text-center">아직 등록된 키워드가 없습니다.<br/>첫 번째 약속의 주인공이 되어보세요!</p>';
                 document.getElementById('ai-insight').classList.add('hidden');
                 return;
             }
 
             container.innerHTML = entries.map(([word, count]) => {
-                const size = Math.min(1.2 + count * 0.5, 4);
-                const opacity = Math.min(0.5 + count * 0.2, 1);
+                const size = Math.min(1.2 + count * 0.4, 3.5);
+                const opacity = Math.min(0.5 + count * 0.15, 1);
                 return `<span class="word-item font-black ${currentData.color}" style="font-size: ${size}rem; opacity: ${opacity}">${word}</span>`;
             }).join('');
 
@@ -284,7 +332,7 @@
             onSnapshot(pledgesCol, (snapshot) => {
                 allResponses = snapshot.docs.map(doc => doc.data());
                 renderAll();
-            });
+            }, (err) => console.error(err));
         });
 
         document.getElementById('pledge-form').addEventListener('submit', async (e) => {
@@ -295,7 +343,7 @@
 
             if(!text) return;
             btn.disabled = true;
-            btn.innerHTML = '처리 중...';
+            btn.innerHTML = '등록 중...';
 
             try {
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'pledges'), {
