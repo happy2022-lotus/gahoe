@@ -139,7 +139,7 @@
                             <span class="p-2 bg-indigo-600 text-white rounded-lg shadow-lg">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                             </span>
-                            <h4 class="text-sm font-black text-indigo-700 tracking-tight uppercase">공동체 핵심 가치 기반 5대 다짐</h4>
+                            <h4 class="text-sm font-black text-indigo-700 tracking-tight uppercase">우리들의 5대 공동체 다짐</h4>
                         </div>
                         <div id="insight-list" class="space-y-4">
                             <!-- Dynamically generated sentences -->
@@ -181,26 +181,29 @@
         let currentTab = 'student';
         let allResponses = [];
 
-        // 로직 강화를 위한 동적 문장 생성 엔진 설정
+        // 문장 생성 엔진 - 더 간결하고 서로 겹치지 않는 구조로 개편
         const sentenceEngine = {
-            student: {
-                intro: ["우리 학생들은", "가회중의 미래인 우리는", "서로를 아끼는 마음으로", "행복한 학교를 위해"],
-                connectors: ["{word1}을(를) 실천하며", "{word1}의 가치를 새기고", "{word1}하는 마음을 담아"],
-                actions: ["{word2}와(과) {word3}이(가) 공존하는 문화를 만들겠습니다.", "{word2}를 통해 {word3}하는 성숙한 학생이 되겠습니다.", "선생님과 친구들에게 {word2}와(과) {word3}의 태도를 지키겠습니다."],
-                conclusion: ["이것이 우리의 책임입니다.", "함께 실천하는 약속입니다.", "가회 공동체의 다짐입니다."]
-            },
-            parent: {
-                intro: ["가정에서부터", "학교를 신뢰하는 마음으로", "자녀의 성장을 위해", "교육의 동반자로서"],
-                connectors: ["{word1} 교육에 힘쓰며", "{word1}을(를) 몸소 실천하여", "{word1}의 의미를 자녀와 나누고"],
-                actions: ["학교의 {word2}와(과) {word3} 활동을 적극 지원하겠습니다.", "자녀가 {word2}와(과) {word3}의 소중함을 알게 지도하겠습니다.", "모두가 {word2}하고 {word3}하는 학교 문화를 응원하겠습니다."],
-                conclusion: ["학부모의 책임을 다하겠습니다.", "학교와 함께 나아가겠습니다.", "자녀의 거울이 되겠습니다."]
-            },
-            school: {
-                intro: ["교직원 모두는", "교육의 전문가로서", "아이들의 꿈을 위해", "안전한 울타리가 되어"],
-                connectors: ["{word1} 기반의 지도로", "{word1}을(를) 교육의 중심에 두고", "{word1}하는 마음으로 학생들을 만나"],
-                actions: ["공정한 {word2}와(과) {word3}의 환경을 조성하겠습니다.", "학생들의 {word2}와(과) {word3}를 존중하는 교실을 만들겠습니다.", "서로 {word2}하고 {word3}하는 민주적인 학교를 이끌겠습니다."],
-                conclusion: ["스승의 책무를 잊지 않겠습니다.", "안전한 학교를 약속합니다.", "존경받는 공동체를 만들겠습니다."]
-            }
+            student: [
+                "우리 학생들은 {w1}의 자세로 친구를 대하며 {w2} 학교를 만듭니다.",
+                "{w1}을(를) 실천하여 {w2}의 가치가 살아있는 교실을 가꾸겠습니다.",
+                "우리는 {w1}와(과) {w2}의 태도로 서로의 권리를 존중하겠습니다.",
+                "{w1}을(를) 바탕으로 선생님과 소통하며 {w2}의 책임을 다하겠습니다.",
+                "가회중의 미래로서 {w1}와(과) {w2}가 공존하는 문화를 약속합니다."
+            ],
+            parent: [
+                "학부모로서 {w1} 교육에 힘쓰며 학교의 {w2} 활동을 지지하겠습니다.",
+                "자녀가 {w1}을(를) 배우고 {w2}하는 마음을 갖도록 함께 노력합니다.",
+                "학교를 신뢰하고 {w1}와(과) {w2}의 마음으로 교육에 동참하겠습니다.",
+                "가정에서 {w1}의 모범을 보이며 자녀의 {w2} 성장을 돕겠습니다.",
+                "우리 아이들이 {w1}하고 {w2}하는 환경에서 자라도록 협력하겠습니다."
+            ],
+            school: [
+                "교직원 모두는 {w1}의 환경을 조성하여 {w2} 교육을 실천하겠습니다.",
+                "학생들의 {w1}를 존중하고 {w2}의 원칙을 지키는 교사가 되겠습니다.",
+                "{w1} 기반의 지도로 아이들의 {w2} 발달을 적극 지원하겠습니다.",
+                "안전한 학교에서 {w1}와(과) {w2}의 가치가 꽃피도록 노력하겠습니다.",
+                "민주적인 소통으로 {w1}하고 {w2}하는 성숙한 공동체를 이끌겠습니다."
+            ]
         };
 
         const infoSet = {
@@ -240,32 +243,35 @@
         function generateCombinedInsights(counts) {
             const insightBox = document.getElementById('ai-insight');
             const insightList = document.getElementById('insight-list');
-            const sortedWords = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(e => e[0]);
+            
+            // 모든 단어 리스트 추출 (빈도수 무관하게 다양성 확보)
+            const allWords = Object.keys(counts);
 
-            if (sortedWords.length < 1) {
+            if (allWords.length < 1) {
                 insightBox.classList.add('hidden');
                 return;
             }
 
-            const coreWord = sortedWords[0]; // 최빈 단어 (반드시 포함)
-            const pool = sortedWords.length > 1 ? sortedWords.slice(1) : [coreWord];
-            const engine = sentenceEngine[currentTab];
-            
+            // 최대한 겹치지 않게 단어들을 섞어서 준비
+            let shuffledWords = shuffleArray(allWords);
+            // 만약 단어가 10개 미만이면, 반복해서 채워줌
+            while(shuffledWords.length < 10) {
+                shuffledWords = shuffledWords.concat(shuffleArray(allWords));
+            }
+
+            const templates = sentenceEngine[currentTab];
             let html = "";
             
+            // 5개의 문장 생성
             for (let i = 0; i < 5; i++) {
-                // 풀에서 무작위로 2개 단어 추출 (단어가 부족하면 최빈 단어로 대체)
-                const shuffledPool = shuffleArray(pool);
-                const w1 = shuffledPool[0] || coreWord;
-                const w2 = shuffledPool[1] || coreWord;
-                const w3 = coreWord; // 최빈 단어는 매 문장 혹은 핵심 위치에 배치
+                // 각 문장마다 고유한 두 단어 선택 (i*2, i*2+1)
+                const word1 = shuffledWords[i * 2];
+                const word2 = shuffledWords[i * 2 + 1];
 
-                const intro = engine.intro[i % engine.intro.length];
-                const connector = engine.connectors[i % engine.connectors.length].replace(/{word1}/g, `<span class="highlight-word">${w1}</span>`);
-                const action = engine.actions[i % engine.actions.length].replace(/{word2}/g, `<span class="highlight-word">${w2}</span>`).replace(/{word3}/g, `<span class="highlight-word">${w3}</span>`);
-                const conclusion = engine.conclusion[i % engine.conclusion.length];
-
-                const fullSentence = `${intro} ${connector} ${action} ${conclusion}`;
+                const template = templates[i];
+                const fullSentence = template
+                    .replace(/{w1}/g, `<span class="highlight-word">${word1}</span>`)
+                    .replace(/{w2}/g, `<span class="highlight-word">${word2}</span>`);
                 
                 html += `
                     <div class="insight-item animate__animated animate__fadeInLeft" style="animation-delay: ${i * 100}ms">
