@@ -1,302 +1,244 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
-import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  onSnapshot, 
-  query
-} from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
-import { 
-  Users, GraduationCap, Heart, Send, Sparkles, 
-  ClipboardCheck, ArrowRight, ShieldCheck, Info, 
-  AlertCircle, MessageCircle, Star, CheckCircle2 
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>가회중학교 학교문화 책임규약</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background-color: #F0F4F8; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); }
+        .tab-active { background: white; color: #4F46E5; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transform: translateY(-2px); }
+        .word-item { transition: all 0.3s ease; cursor: default; display: inline-block; }
+        .word-item:hover { transform: scale(1.1); filter: brightness(1.2); }
+    </style>
+</head>
+<body class="text-slate-800">
 
-// --- Firebase Configuration ---
-const firebaseConfig = {
-  apiKey: "AIzaSyBcH1PUzFhMazQZxat54-cWz2wlvCsEPpk",
-  authDomain: "gahoems.firebaseapp.com",
-  projectId: "gahoems",
-  storageBucket: "gahoems.firebasestorage.app",
-  messagingSenderId: "803125707384",
-  appId: "1:803125707384:web:6ea240e030deb3573b238d"
-};
-
-const finalConfig = typeof __firebase_config !== 'undefined' 
-  ? JSON.parse(__firebase_config) 
-  : firebaseConfig;
-
-const app = initializeApp(finalConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'gaho-culture-app';
-
-const App = () => {
-  const [user, setUser] = useState(null);
-  const [showMain, setShowMain] = useState(false);
-  const [activeTab, setActiveTab] = useState('student');
-  const [inputText, setInputText] = useState('');
-  const [responses, setResponses] = useState([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    const initAuth = async () => {
-      try {
-        await signInAnonymously(auth);
-      } catch (error) {
-        console.error("인증 실패:", error);
-      }
-    };
-    initAuth();
-    const unsubscribeAuth = onAuthStateChanged(auth, (currUser) => {
-      setUser(currUser);
-    });
-    return () => unsubscribeAuth();
-  }, []);
-
-  useEffect(() => {
-    if (!user) return;
-    const pledgesCol = collection(db, 'artifacts', appId, 'public', 'data', 'pledges');
-    const unsubscribe = onSnapshot(pledgesCol, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setResponses(data);
-    }, (err) => {
-      console.error("데이터 로드 오류:", err);
-    });
-    return () => unsubscribe();
-  }, [user]);
-
-  const wordCloudData = useMemo(() => {
-    const counts = { student: {}, parent: {}, school: {} };
-    responses.forEach(res => {
-      if (!res.text || !res.role || !counts[res.role]) return;
-      const words = res.text.split(/\s+/).filter(w => w.length > 1);
-      words.forEach(w => {
-        counts[res.role][w] = (counts[res.role][w] || 0) + 1;
-      });
-    });
-    return counts;
-  }, [responses]);
-
-  const guidelines = {
-    student: ["존중과 배려 실천", "폭력 없는 교실", "고운 말 사용하기"],
-    parent: ["학교 교육 신뢰", "자녀 소통 강화", "함께하는 학부모"],
-    school: ["안전한 환경 조성", "공정한 문제 해결", "민주적 문화 형성"]
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!inputText.trim() || !user || isSubmitting) return;
-    setIsSubmitting(true);
-    try {
-      await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'pledges'), {
-        role: activeTab,
-        text: inputText.trim(),
-        timestamp: new Date().toISOString(),
-        uid: user.uid
-      });
-      setInputText('');
-    } catch (err) {
-      console.error("등록 실패:", err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const IntroView = () => (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#F8FAFC] p-6 font-sans">
-      <div className="max-w-xl w-full bg-white rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden transition-all hover:shadow-[0_30px_60px_rgba(0,0,0,0.1)] border border-slate-100">
-        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-12 text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-             <div className="absolute top-10 left-10 w-20 h-20 bg-white rounded-full blur-xl"></div>
-             <div className="absolute bottom-10 right-10 w-32 h-32 bg-white rounded-full blur-2xl"></div>
-          </div>
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-md rounded-2xl mb-6 border border-white/30 animate-bounce">
-            <ShieldCheck size={40} className="text-white" />
-          </div>
-          <h1 className="text-white text-3xl font-black tracking-tight mb-2">학교문화 책임규약</h1>
-          <p className="text-blue-100 font-medium">가회중학교 캠페인</p>
-        </div>
-        
-        <div className="p-10 space-y-8">
-          <div className="space-y-4 text-center">
-            <p className="text-slate-600 text-lg leading-relaxed">
-              모두가 행복한 가회 교육을 위해<br/>
-              서로의 <strong>책임</strong>을 다짐하는 시간입니다.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3">
-             {[
-               { icon: <CheckCircle2 size={18}/>, text: "서로 존중하며 학교폭력 예방하기", color: "text-emerald-600" },
-               { icon: <CheckCircle2 size={18}/>, text: "각자의 위치에서 책임 다하기", color: "text-blue-600" },
-               { icon: <CheckCircle2 size={18}/>, text: "소통하며 행복한 학교 만들기", color: "text-indigo-600" }
-             ].map((item, i) => (
-               <div key={i} className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                  <span className={item.color}>{item.icon}</span>
-                  <span className="text-slate-700 font-semibold">{item.text}</span>
-               </div>
-             ))}
-          </div>
-
-          <button 
-            onClick={() => setShowMain(true)}
-            className="group w-full py-5 bg-slate-900 text-white rounded-2xl font-bold text-xl hover:bg-blue-600 transition-all shadow-xl flex items-center justify-center gap-3"
-          >
-            시작하기 <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform"/>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const MainView = () => (
-    <div className="min-h-screen bg-[#F0F4F8] p-4 md:p-8 font-sans">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* 상단 헤더 */}
-        <header className="flex justify-between items-center bg-white/60 backdrop-blur-lg border border-white p-6 rounded-[2rem] shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
-              <GraduationCap className="text-white" size={24} />
+    <!-- INTRO SCREEN -->
+    <div id="intro-screen" class="min-h-screen flex items-center justify-center p-6">
+        <div class="max-w-xl w-full bg-white rounded-[3rem] shadow-2xl overflow-hidden animate__animated animate__fadeIn">
+            <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-12 text-center relative">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-md rounded-2xl mb-6 border border-white/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <h1 class="text-white text-3xl font-black mb-2">학교문화 책임규약</h1>
+                <p class="text-indigo-100 font-medium tracking-widest">GAHOE MIDDLE SCHOOL</p>
             </div>
-            <div>
-              <h1 className="text-xl font-black text-slate-800 tracking-tight">가회중 책임규약</h1>
-              <p className="text-[10px] text-slate-400 font-bold tracking-[0.2em]">COLLECTIVE AGREEMENT</p>
-            </div>
-          </div>
-          <button onClick={() => setShowMain(false)} className="hover:rotate-90 transition-transform p-2">
-            <AlertCircle className="text-slate-300" />
-          </button>
-        </header>
-
-        {/* 탭 네비게이션 */}
-        <div className="grid grid-cols-3 gap-3 bg-white/40 p-2 rounded-3xl border border-white">
-          {[
-            { id: 'student', label: '학생', icon: <Users size={18}/>, color: 'blue' },
-            { id: 'parent', label: '학부모', icon: <Heart size={18}/>, color: 'emerald' },
-            { id: 'school', label: '학교', icon: <Star size={18}/>, color: 'rose' }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center justify-center gap-2 py-4 rounded-2xl font-bold text-sm transition-all
-                ${activeTab === tab.id 
-                  ? `bg-white text-${tab.color}-600 shadow-lg scale-[1.02]` 
-                  : 'text-slate-400 hover:text-slate-600'}`}
-            >
-              {tab.icon} {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* 메인 입력창 */}
-        <section className="bg-white rounded-[3rem] shadow-2xl shadow-blue-900/5 p-8 border border-white overflow-hidden relative">
-          <div className="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none">
-            <MessageCircle size={200} />
-          </div>
-          <div className="relative z-10 space-y-6 text-center">
-            <div className="inline-block px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-xs font-black mb-2 tracking-widest uppercase">
-              Pledge Submission
-            </div>
-            <h2 className="text-2xl font-extrabold text-slate-800">우리의 소중한 약속을 들려주세요</h2>
-            <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 max-w-3xl mx-auto">
-              <input
-                type="text"
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                placeholder={`${activeTab === 'student' ? '나는 친구를 존중하고...' : '우리 아이의 성장을 위해...'} 다짐을 적어주세요!`}
-                className="flex-1 px-8 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] focus:outline-none focus:ring-4 focus:ring-blue-100 focus:bg-white transition-all text-lg shadow-inner"
-              />
-              <button 
-                type="submit" 
-                disabled={!inputText.trim() || isSubmitting}
-                className="px-10 bg-slate-900 text-white rounded-[2rem] hover:bg-blue-600 disabled:bg-slate-200 transition-all shadow-xl font-bold flex items-center justify-center gap-3 h-[70px]"
-              >
-                {isSubmitting ? '참여 중' : '약속 등록'} <Send size={20}/>
-              </button>
-            </form>
-          </div>
-        </section>
-
-        {/* 분석 및 시각화 */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* 워드클라우드 카드 */}
-          <div className="lg:col-span-7 bg-white p-10 rounded-[3rem] shadow-xl border border-white min-h-[500px] flex flex-col items-center">
-             <div className="w-full flex justify-between items-center mb-10 border-b border-slate-50 pb-4">
-               <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
-                 <Sparkles className="text-amber-400" size={24}/> 실시간 키워드
-               </h3>
-               <span className="text-xs font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full uppercase">Live Cloud</span>
-             </div>
-             
-             <div className="flex-1 flex flex-wrap items-center justify-center gap-x-10 gap-y-6 w-full animate-in zoom-in-95 duration-500">
-               {Object.keys(wordCloudData[activeTab]).length > 0 ? (
-                 Object.entries(wordCloudData[activeTab]).map(([word, count], i) => (
-                   <div 
-                    key={word} 
-                    style={{ 
-                      fontSize: `${Math.min(1.4 + count * 0.6, 5)}rem`,
-                      opacity: Math.min(0.6 + count * 0.2, 1),
-                      animationDelay: `${i * 100}ms`
-                    }} 
-                    className={`font-black tracking-tighter transition-all hover:scale-110 cursor-default animate-in slide-in-from-bottom-4
-                      ${activeTab === 'student' ? 'text-blue-600' : activeTab === 'parent' ? 'text-emerald-600' : 'text-rose-600'}`}
-                   >
-                     {word}
-                   </div>
-                 ))
-               ) : (
-                 <div className="text-center space-y-6 opacity-40">
-                    <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto border-2 border-dashed border-slate-200">
-                      <Heart size={40} className="text-slate-300" />
+            <div class="p-10 space-y-8">
+                <p class="text-center text-slate-600 text-lg leading-relaxed">
+                    성숙한 배움과 존중이 있는 **가회** 교육을 위해<br/>
+                    학교 구성원의 책임을 확인하고 다짐합니다.
+                </p>
+                <div class="space-y-3 text-sm font-semibold">
+                    <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <span class="text-emerald-500">✔</span> <span>서로의 권리를 존중하며 책임 있게 행동하기</span>
                     </div>
-                    <p className="font-bold text-slate-400">첫 번째 약속을 기다리고 있어요</p>
-                 </div>
-               )}
-             </div>
-          </div>
-
-          {/* 가이드 라인 카드 */}
-          <div className="lg:col-span-5 flex flex-col gap-6">
-            <div className="bg-slate-900 text-white p-10 rounded-[3.5rem] shadow-2xl flex-1 relative overflow-hidden">
-               <div className="absolute bottom-0 right-0 w-32 h-32 bg-blue-500/10 blur-[60px] rounded-full -mb-10 -mr-10"></div>
-               <h3 className="text-blue-400 font-black text-lg mb-8 flex items-center gap-3 tracking-widest uppercase border-b border-white/10 pb-4">
-                 <ClipboardCheck size={20}/> 핵심 규약 안내
-               </h3>
-               <div className="space-y-6">
-                 {guidelines[activeTab].map((text, i) => (
-                   <div key={i} className="flex gap-4 items-center group transition-all p-4 hover:bg-white/5 rounded-3xl border border-transparent hover:border-white/10">
-                      <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center font-black text-sm group-hover:bg-blue-600 transition-colors">
-                        {i+1}
-                      </div>
-                      <p className="text-slate-200 font-semibold text-lg">{text}</p>
-                   </div>
-                 ))}
-               </div>
+                    <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <span class="text-indigo-500">✔</span> <span>건전한 학교 문화를 위한 규칙 준수하기</span>
+                    </div>
+                </div>
+                <button onclick="startApp()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-bold text-xl hover:bg-indigo-600 transition-all shadow-xl">
+                    참여 시작하기
+                </button>
             </div>
-
-            <div className="bg-blue-600 text-white p-8 rounded-[3rem] shadow-xl flex items-center justify-between group cursor-pointer hover:bg-blue-700 transition-all">
-               <div className="space-y-1">
-                 <h4 className="font-black">문의사항이 있나요?</h4>
-                 <p className="text-blue-100 text-xs">학교폭력 예방 및 책임규약 센터</p>
-               </div>
-               <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform">
-                 <Info size={24} />
-               </div>
-            </div>
-          </div>
         </div>
-        
-        <footer className="text-center py-10 opacity-30">
-          <p className="text-[10px] font-black tracking-[0.5em] text-slate-500">© 2026 GAHO ELEMENTARY SCHOOL • ALL RIGHTS RESERVED</p>
-        </footer>
-      </div>
     </div>
-  );
 
-  return showMain ? <MainView /> : <IntroView />;
-};
+    <!-- MAIN APP SCREEN (Hidden by default) -->
+    <div id="main-screen" class="hidden min-h-screen p-4 md:p-8 animate__animated animate__fadeIn">
+        <div class="max-w-6xl mx-auto space-y-6">
+            <header class="flex justify-between items-center glass p-6 rounded-[2rem]">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-black text-slate-800">가회중 책임규약</h1>
+                        <p class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">Gahoe MS Community</p>
+                    </div>
+                </div>
+                <button onclick="location.reload()" class="p-2 text-slate-400 hover:text-indigo-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </button>
+            </header>
 
-export default App;
+            <!-- TABS -->
+            <div class="grid grid-cols-3 gap-3 glass p-2 rounded-3xl">
+                <button onclick="switchTab('student')" id="tab-student" class="tab-active py-4 rounded-2xl font-bold text-sm transition-all">학생의 책임</button>
+                <button onclick="switchTab('parent')" id="tab-parent" class="py-4 rounded-2xl font-bold text-sm transition-all text-slate-400">학부모의 책임</button>
+                <button onclick="switchTab('school')" id="tab-school" class="py-4 rounded-2xl font-bold text-sm transition-all text-slate-400">교직원의 책임</button>
+            </div>
+
+            <!-- INPUT SECTION -->
+            <section class="bg-white rounded-[3rem] shadow-xl p-8 border border-white text-center">
+                <h2 class="text-2xl font-extrabold mb-6">우리가 실천할 성숙한 약속</h2>
+                <form id="pledge-form" class="flex flex-col md:flex-row gap-4 max-w-3xl mx-auto">
+                    <input id="pledge-input" type="text" required placeholder="키워드를 입력하세요 (예: 존중, 배려, 책임)" 
+                           class="flex-1 px-8 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:bg-white transition-all text-lg shadow-inner">
+                    <button type="submit" id="submit-btn" class="px-10 bg-slate-900 text-white rounded-[2rem] hover:bg-indigo-600 transition-all shadow-xl font-bold flex items-center justify-center gap-3 h-[70px]">
+                        <span>등록하기</span>
+                    </button>
+                </form>
+            </section>
+
+            <!-- CLOUD & INFO -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-7 bg-white p-10 rounded-[3rem] shadow-xl border border-white min-h-[450px]">
+                    <div class="flex justify-between mb-8 border-b pb-4">
+                        <h3 class="font-black text-slate-800 flex items-center gap-2">실시간 가회 키워드</h3>
+                        <span class="text-[10px] bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full font-black uppercase">Live</span>
+                    </div>
+                    <div id="word-cloud" class="flex flex-wrap items-center justify-center gap-6 min-h-[300px]">
+                        <!-- Words go here -->
+                        <p class="text-slate-300 italic">약속을 등록하여 클라우드를 채워주세요!</p>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 bg-slate-900 text-white p-10 rounded-[3rem] shadow-2xl space-y-8">
+                    <h3 class="text-indigo-400 font-black text-lg border-b border-white/10 pb-4">성숙한 구성원의 책임</h3>
+                    <div id="guidelines" class="space-y-6 text-slate-300">
+                        <!-- Guidelines go here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE & LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+        // Firebase 설정
+        const firebaseConfig = {
+            apiKey: "AIzaSyBcH1PUzFhMazQZxat54-cWz2wlvCsEPpk",
+            authDomain: "gahoems.firebaseapp.com",
+            projectId: "gahoems",
+            storageBucket: "gahoems.firebasestorage.app",
+            messagingSenderId: "803125707384",
+            appId: "1:803125707384:web:6ea240e030deb3573b238d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = 'gahoe-ms-culture-app';
+
+        let currentTab = 'student';
+        let allResponses = [];
+
+        const guidelines = {
+            student: ["타인의 권리 존중 및 책임 의식 고취", "자율과 책임이 조화로운 생활", "언어폭력 및 사이버 폭력 근절"],
+            parent: ["학교의 교육활동 및 생활지도 신뢰", "가정 내 올바른 인성 교육 실천", "학교 구성원 간 상호 존중 문화 동참"],
+            school: ["안전한 학습 환경 및 공정한 교육", "합리적 생활지도 및 분쟁 조정 강화", "소통 중심의 민주적 학교 공동체 운영"]
+        };
+
+        // 앱 시작 함수 (글로벌 등록)
+        window.startApp = () => {
+            document.getElementById('intro-screen').classList.add('hidden');
+            document.getElementById('main-screen').classList.remove('hidden');
+            renderGuidelines();
+        };
+
+        // 탭 전환 함수 (글로벌 등록)
+        window.switchTab = (tab) => {
+            currentTab = tab;
+            ['student', 'parent', 'school'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if(t === tab) {
+                    btn.classList.add('tab-active');
+                    btn.classList.remove('text-slate-400');
+                } else {
+                    btn.classList.remove('tab-active');
+                    btn.classList.add('text-slate-400');
+                }
+            });
+            renderAll();
+        };
+
+        // 가이드라인 렌더링
+        function renderGuidelines() {
+            const container = document.getElementById('guidelines');
+            container.innerHTML = guidelines[currentTab].map((g, i) => `
+                <div class="flex gap-4 items-center animate__animated animate__fadeInRight" style="animation-delay: ${i*100}ms">
+                    <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center font-bold text-xs">${i+1}</div>
+                    <p class="font-medium">${g}</p>
+                </div>
+            `).join('');
+        }
+
+        // 워드클라우드 렌더링
+        function renderCloud() {
+            const container = document.getElementById('word-cloud');
+            const filtered = allResponses.filter(r => r.role === currentTab);
+            
+            const counts = {};
+            filtered.forEach(r => {
+                const words = r.text.split(/\s+/).filter(w => w.length > 1);
+                words.forEach(w => counts[w] = (counts[w] || 0) + 1);
+            });
+
+            const entries = Object.entries(counts);
+            if(entries.length === 0) {
+                container.innerHTML = '<p class="text-slate-300 italic">아직 등록된 키워드가 없습니다.</p>';
+                return;
+            }
+
+            const colors = { student: 'text-blue-600', parent: 'text-emerald-600', school: 'text-rose-600' };
+            container.innerHTML = entries.map(([word, count]) => {
+                const size = Math.min(1.2 + count * 0.5, 4);
+                const opacity = Math.min(0.5 + count * 0.2, 1);
+                return `<span class="word-item font-black ${colors[currentTab]}" style="font-size: ${size}rem; opacity: ${opacity}">${word}</span>`;
+            }).join('');
+        }
+
+        function renderAll() {
+            renderGuidelines();
+            renderCloud();
+        }
+
+        // 인증 및 실시간 데이터 수신
+        signInAnonymously(auth).then(() => {
+            const pledgesCol = collection(db, 'artifacts', appId, 'public', 'data', 'pledges');
+            onSnapshot(pledgesCol, (snapshot) => {
+                allResponses = snapshot.docs.map(doc => doc.data());
+                renderAll();
+            });
+        });
+
+        // 데이터 등록
+        document.getElementById('pledge-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('pledge-input');
+            const btn = document.getElementById('submit-btn');
+            const text = input.value.trim();
+
+            if(!text) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '처리 중...';
+
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'pledges'), {
+                    role: currentTab,
+                    text: text,
+                    timestamp: new Date().toISOString(),
+                    uid: auth.currentUser.uid
+                });
+                input.value = '';
+            } catch (err) {
+                console.error(err);
+                alert("등록에 실패했습니다.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '등록하기';
+            }
+        });
+
+    </script>
+</body>
+</html>
