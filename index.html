@@ -13,6 +13,7 @@
         .tab-active { background: white; color: #4F46E5; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transform: translateY(-2px); }
         .word-item { transition: all 0.3s ease; cursor: default; display: inline-block; }
         .word-item:hover { transform: scale(1.1); filter: brightness(1.2); }
+        .summary-box { background: rgba(79, 70, 229, 0.05); border-left: 4px solid #4F46E5; }
     </style>
 </head>
 <body class="text-slate-800">
@@ -29,8 +30,8 @@
             </div>
             <div class="p-10 space-y-8">
                 <p class="text-center text-slate-600 text-lg leading-relaxed">
-                    성숙한 배움과 존중이 있는 **가회** 교육을 위해<br/>
-                    학교 구성원의 책임을 확인하고 다짐합니다.
+                    성숙한 배움과 존중이 있는 교육을 위해<br/>
+                    가회중학교 구성원의 책임을 확인하고 다짐합니다.
                 </p>
                 <div class="space-y-3 text-sm font-semibold">
                     <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
@@ -47,7 +48,7 @@
         </div>
     </div>
 
-    <!-- MAIN APP SCREEN (Hidden by default) -->
+    <!-- MAIN APP SCREEN -->
     <div id="main-screen" class="hidden min-h-screen p-4 md:p-8 animate__animated animate__fadeIn">
         <div class="max-w-6xl mx-auto space-y-6">
             <header class="flex justify-between items-center glass p-6 rounded-[2rem]">
@@ -74,7 +75,7 @@
 
             <!-- INPUT SECTION -->
             <section class="bg-white rounded-[3rem] shadow-xl p-8 border border-white text-center">
-                <h2 class="text-2xl font-extrabold mb-6">우리가 실천할 성숙한 약속</h2>
+                <h2 id="input-title" class="text-2xl font-extrabold mb-6">학생으로서 실천할 성숙한 약속</h2>
                 <form id="pledge-form" class="flex flex-col md:flex-row gap-4 max-w-3xl mx-auto">
                     <input id="pledge-input" type="text" required placeholder="키워드를 입력하세요 (예: 존중, 배려, 책임)" 
                            class="flex-1 px-8 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:bg-white transition-all text-lg shadow-inner">
@@ -86,21 +87,30 @@
 
             <!-- CLOUD & INFO -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div class="lg:col-span-7 bg-white p-10 rounded-[3rem] shadow-xl border border-white min-h-[450px]">
+                <!-- Word Cloud Card -->
+                <div class="lg:col-span-7 bg-white p-10 rounded-[3rem] shadow-xl border border-white min-h-[500px] flex flex-col">
                     <div class="flex justify-between mb-8 border-b pb-4">
                         <h3 class="font-black text-slate-800 flex items-center gap-2">실시간 가회 키워드</h3>
-                        <span class="text-[10px] bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full font-black uppercase">Live</span>
+                        <span id="role-tag" class="text-[10px] bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-black uppercase tracking-widest">Student</span>
                     </div>
-                    <div id="word-cloud" class="flex flex-wrap items-center justify-center gap-6 min-h-[300px]">
-                        <!-- Words go here -->
+                    <div id="word-cloud" class="flex-1 flex flex-wrap items-center justify-center gap-6 min-h-[250px]">
                         <p class="text-slate-300 italic">약속을 등록하여 클라우드를 채워주세요!</p>
+                    </div>
+                    <!-- 자동 문장 생성 영역 (Future Insight) -->
+                    <div id="ai-insight" class="mt-8 p-6 summary-box rounded-2xl hidden animate__animated animate__fadeInUp">
+                        <h4 class="text-xs font-black text-indigo-500 mb-2 tracking-tighter uppercase">✨ 우리 가회중 공동체의 다짐</h4>
+                        <p id="insight-text" class="text-slate-700 font-bold text-lg italic leading-relaxed"></p>
                     </div>
                 </div>
 
-                <div class="lg:col-span-5 bg-slate-900 text-white p-10 rounded-[3rem] shadow-2xl space-y-8">
-                    <h3 class="text-indigo-400 font-black text-lg border-b border-white/10 pb-4">성숙한 구성원의 책임</h3>
-                    <div id="guidelines" class="space-y-6 text-slate-300">
+                <!-- Guidelines Card -->
+                <div class="lg:col-span-5 bg-slate-900 text-white p-10 rounded-[3rem] shadow-2xl space-y-8 flex flex-col">
+                    <h3 id="guideline-title" class="text-indigo-400 font-black text-lg border-b border-white/10 pb-4">성숙한 학생의 책임</h3>
+                    <div id="guidelines" class="space-y-6 text-slate-300 flex-1">
                         <!-- Guidelines go here -->
+                    </div>
+                    <div class="pt-6 border-t border-white/10 opacity-50 text-[11px] font-medium leading-relaxed">
+                        가회중학교 교육공동체는 서로의 권리를 존중하며,<br/> 안전하고 행복한 학교를 만들기 위해 위 규약을 준수합니다.
                     </div>
                 </div>
             </div>
@@ -131,20 +141,54 @@
         let currentTab = 'student';
         let allResponses = [];
 
-        const guidelines = {
-            student: ["타인의 권리 존중 및 책임 의식 고취", "자율과 책임이 조화로운 생활", "언어폭력 및 사이버 폭력 근절"],
-            parent: ["학교의 교육활동 및 생활지도 신뢰", "가정 내 올바른 인성 교육 실천", "학교 구성원 간 상호 존중 문화 동참"],
-            school: ["안전한 학습 환경 및 공정한 교육", "합리적 생활지도 및 분쟁 조정 강화", "소통 중심의 민주적 학교 공동체 운영"]
+        const infoSet = {
+            student: {
+                title: "학생으로서 실천할 성숙한 약속",
+                guidelineTitle: "성숙한 학생의 책임",
+                tag: "Student",
+                color: "text-blue-600",
+                bgColor: "bg-blue-50",
+                rules: [
+                    "타인의 권리 존중 및 책임 의식 고취",
+                    "자율과 책임이 조화로운 생활 실천",
+                    "언어폭력 및 사이버 폭력 근절 약속",
+                    "수업 시간 예절 지키기 및 학습권 존중"
+                ]
+            },
+            parent: {
+                title: "학부모로서 실천할 성숙한 약속",
+                guidelineTitle: "성숙한 학부모의 책임",
+                tag: "Parent",
+                color: "text-emerald-600",
+                bgColor: "bg-emerald-50",
+                rules: [
+                    "학교의 교육활동 및 생활지도 신뢰하기",
+                    "가정 내 올바른 인성 교육 실천",
+                    "학교 구성원 간 상호 존중 문화 동참",
+                    "자녀와 공감하며 소통하는 시간 갖기"
+                ]
+            },
+            school: {
+                title: "교직원으로서 실천할 성숙한 약속",
+                guidelineTitle: "성숙한 교직원의 책임",
+                tag: "Teacher",
+                color: "text-rose-600",
+                bgColor: "bg-rose-50",
+                rules: [
+                    "안전한 학습 환경 및 공정한 교육 제공",
+                    "합리적 생활지도 및 분쟁 조정 강화",
+                    "소통 중심의 민주적 학교 공동체 운영",
+                    "학생 개개인의 인격과 다양성 존중"
+                ]
+            }
         };
 
-        // 앱 시작 함수 (글로벌 등록)
         window.startApp = () => {
             document.getElementById('intro-screen').classList.add('hidden');
             document.getElementById('main-screen').classList.remove('hidden');
-            renderGuidelines();
+            renderAll();
         };
 
-        // 탭 전환 함수 (글로벌 등록)
         window.switchTab = (tab) => {
             currentTab = tab;
             ['student', 'parent', 'school'].forEach(t => {
@@ -160,22 +204,54 @@
             renderAll();
         };
 
-        // 가이드라인 렌더링
         function renderGuidelines() {
             const container = document.getElementById('guidelines');
-            container.innerHTML = guidelines[currentTab].map((g, i) => `
+            const data = infoSet[currentTab];
+            
+            document.getElementById('input-title').innerText = data.title;
+            document.getElementById('guideline-title').innerText = data.guidelineTitle;
+            
+            container.innerHTML = data.rules.map((g, i) => `
                 <div class="flex gap-4 items-center animate__animated animate__fadeInRight" style="animation-delay: ${i*100}ms">
                     <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center font-bold text-xs">${i+1}</div>
-                    <p class="font-medium">${g}</p>
+                    <p class="font-medium text-slate-100">${g}</p>
                 </div>
             `).join('');
         }
 
-        // 워드클라우드 렌더링
+        function generateInsight(counts) {
+            const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+            const insightBox = document.getElementById('ai-insight');
+            const insightText = document.getElementById('insight-text');
+            
+            if (entries.length >= 2) {
+                const topWords = entries.slice(0, 3).map(e => e[0]);
+                let sentence = "";
+                
+                if (currentTab === 'student') {
+                    sentence = `우리는 "${topWords[0]}"(와)과 "${topWords[1]}"을(를) 바탕으로 더 즐거운 가회중을 만들겠습니다.`;
+                } else if (currentTab === 'parent') {
+                    sentence = `우리 학부모는 "${topWords[0]}"의 마음으로 학교를 신뢰하며 "${topWords[1]}" 교육에 앞장서겠습니다.`;
+                } else {
+                    sentence = `우리 교직원은 "${topWords[0]}" 가치를 실천하여 "${topWords[1]}"이(가) 가득한 교실을 가꾸겠습니다.`;
+                }
+                
+                insightText.innerText = sentence;
+                insightBox.classList.remove('hidden');
+            } else {
+                insightBox.classList.add('hidden');
+            }
+        }
+
         function renderCloud() {
             const container = document.getElementById('word-cloud');
-            const filtered = allResponses.filter(r => r.role === currentTab);
+            const roleTag = document.getElementById('role-tag');
+            const currentData = infoSet[currentTab];
             
+            roleTag.innerText = currentData.tag;
+            roleTag.className = `text-[10px] ${currentData.bgColor} ${currentData.color} px-3 py-1 rounded-full font-black uppercase tracking-widest`;
+
+            const filtered = allResponses.filter(r => r.role === currentTab);
             const counts = {};
             filtered.forEach(r => {
                 const words = r.text.split(/\s+/).filter(w => w.length > 1);
@@ -185,15 +261,17 @@
             const entries = Object.entries(counts);
             if(entries.length === 0) {
                 container.innerHTML = '<p class="text-slate-300 italic">아직 등록된 키워드가 없습니다.</p>';
+                document.getElementById('ai-insight').classList.add('hidden');
                 return;
             }
 
-            const colors = { student: 'text-blue-600', parent: 'text-emerald-600', school: 'text-rose-600' };
             container.innerHTML = entries.map(([word, count]) => {
                 const size = Math.min(1.2 + count * 0.5, 4);
                 const opacity = Math.min(0.5 + count * 0.2, 1);
-                return `<span class="word-item font-black ${colors[currentTab]}" style="font-size: ${size}rem; opacity: ${opacity}">${word}</span>`;
+                return `<span class="word-item font-black ${currentData.color}" style="font-size: ${size}rem; opacity: ${opacity}">${word}</span>`;
             }).join('');
+
+            generateInsight(counts);
         }
 
         function renderAll() {
@@ -201,7 +279,6 @@
             renderCloud();
         }
 
-        // 인증 및 실시간 데이터 수신
         signInAnonymously(auth).then(() => {
             const pledgesCol = collection(db, 'artifacts', appId, 'public', 'data', 'pledges');
             onSnapshot(pledgesCol, (snapshot) => {
@@ -210,7 +287,6 @@
             });
         });
 
-        // 데이터 등록
         document.getElementById('pledge-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const input = document.getElementById('pledge-input');
@@ -218,7 +294,6 @@
             const text = input.value.trim();
 
             if(!text) return;
-
             btn.disabled = true;
             btn.innerHTML = '처리 중...';
 
