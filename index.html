@@ -16,8 +16,10 @@
         .summary-box { background: linear-gradient(135deg, rgba(79, 70, 229, 0.05), rgba(139, 92, 246, 0.05)); border-left: 6px solid #4F46E5; }
         .intro-card { transition: all 0.3s ease; border: 1px solid #E2E8F0; }
         .intro-card:hover { transform: translateY(-8px); border-color: #4F46E5; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05); }
-        .insight-item { border-bottom: 1px dashed #E2E8F0; padding: 12px 0; }
+        .insight-item { border-bottom: 1px dashed #E2E8F0; padding: 14px 0; }
         .insight-item:last-child { border-bottom: none; }
+        .highlight-word { color: #4F46E5; font-weight: 900; position: relative; padding: 0 2px; }
+        .highlight-word::after { content: ''; position: absolute; bottom: 2px; left: 0; width: 100%; height: 6px; background: rgba(79, 70, 229, 0.1); z-index: -1; }
     </style>
 </head>
 <body class="text-slate-800">
@@ -128,19 +130,19 @@
                         <span id="role-tag" class="text-[10px] bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-black uppercase tracking-widest">Student</span>
                     </div>
                     <div id="word-cloud" class="flex-1 flex flex-wrap items-center justify-center gap-6 min-h-[250px] p-4">
-                        <p class="text-slate-300 italic">약속을 등록하여 클라우드를 채워주세요!</p>
+                        <p class="text-slate-300 italic text-center">약속을 등록하여 클라우드를 채워주세요!</p>
                     </div>
                     
-                    <!-- 강화된 5개 문장 다짐 영역 -->
+                    <!-- AI Insight Section -->
                     <div id="ai-insight" class="mt-8 p-8 summary-box rounded-[2rem] hidden animate__animated animate__fadeInUp">
                         <div class="flex items-center gap-3 mb-6">
                             <span class="p-2 bg-indigo-600 text-white rounded-lg shadow-lg">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                             </span>
-                            <h4 class="text-sm font-black text-indigo-700 tracking-tight uppercase">우리 가회중 공동체의 5대 다짐</h4>
+                            <h4 class="text-sm font-black text-indigo-700 tracking-tight uppercase">공동체 핵심 가치 기반 5대 다짐</h4>
                         </div>
                         <div id="insight-list" class="space-y-4">
-                            <!-- 문장들이 이곳에 생성됨 -->
+                            <!-- Dynamically generated sentences -->
                         </div>
                     </div>
                 </div>
@@ -149,7 +151,7 @@
                 <div class="lg:col-span-5 bg-slate-900 text-white p-10 rounded-[3rem] shadow-2xl space-y-8 flex flex-col">
                     <h3 id="guideline-title" class="text-indigo-400 font-black text-lg border-b border-white/10 pb-4">성숙한 학생의 책임</h3>
                     <div id="guidelines" class="space-y-6 text-slate-300 flex-1">
-                        <!-- 기본 가이드라인 -->
+                        <!-- Guidelines listed here -->
                     </div>
                 </div>
             </div>
@@ -174,55 +176,44 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = 'gahoe-ms-culture-final';
+        const appId = 'gahoe-ms-culture-final-v2';
 
         let currentTab = 'student';
         let allResponses = [];
 
+        // 로직 강화를 위한 동적 문장 생성 엔진 설정
+        const sentenceEngine = {
+            student: {
+                intro: ["우리 학생들은", "가회중의 미래인 우리는", "서로를 아끼는 마음으로", "행복한 학교를 위해"],
+                connectors: ["{word1}을(를) 실천하며", "{word1}의 가치를 새기고", "{word1}하는 마음을 담아"],
+                actions: ["{word2}와(과) {word3}이(가) 공존하는 문화를 만들겠습니다.", "{word2}를 통해 {word3}하는 성숙한 학생이 되겠습니다.", "선생님과 친구들에게 {word2}와(과) {word3}의 태도를 지키겠습니다."],
+                conclusion: ["이것이 우리의 책임입니다.", "함께 실천하는 약속입니다.", "가회 공동체의 다짐입니다."]
+            },
+            parent: {
+                intro: ["가정에서부터", "학교를 신뢰하는 마음으로", "자녀의 성장을 위해", "교육의 동반자로서"],
+                connectors: ["{word1} 교육에 힘쓰며", "{word1}을(를) 몸소 실천하여", "{word1}의 의미를 자녀와 나누고"],
+                actions: ["학교의 {word2}와(과) {word3} 활동을 적극 지원하겠습니다.", "자녀가 {word2}와(과) {word3}의 소중함을 알게 지도하겠습니다.", "모두가 {word2}하고 {word3}하는 학교 문화를 응원하겠습니다."],
+                conclusion: ["학부모의 책임을 다하겠습니다.", "학교와 함께 나아가겠습니다.", "자녀의 거울이 되겠습니다."]
+            },
+            school: {
+                intro: ["교직원 모두는", "교육의 전문가로서", "아이들의 꿈을 위해", "안전한 울타리가 되어"],
+                connectors: ["{word1} 기반의 지도로", "{word1}을(를) 교육의 중심에 두고", "{word1}하는 마음으로 학생들을 만나"],
+                actions: ["공정한 {word2}와(과) {word3}의 환경을 조성하겠습니다.", "학생들의 {word2}와(과) {word3}를 존중하는 교실을 만들겠습니다.", "서로 {word2}하고 {word3}하는 민주적인 학교를 이끌겠습니다."],
+                conclusion: ["스승의 책무를 잊지 않겠습니다.", "안전한 학교를 약속합니다.", "존경받는 공동체를 만들겠습니다."]
+            }
+        };
+
         const infoSet = {
             student: {
-                title: "학생으로서 실천할 성숙한 약속",
-                guidelineTitle: "성숙한 학생의 책임",
-                tag: "Student",
-                color: "text-blue-600",
-                bgColor: "bg-blue-50",
-                templates: [
-                    "우리는 {core}을(를) 바탕으로 서로의 권리를 지키겠습니다.",
-                    "가장 소중한 가치인 {core}와(과) {sub}을(를) 실천하는 학생이 되겠습니다.",
-                    "{sub}의 마음으로 {core} 넘치는 학교를 만들겠습니다.",
-                    "선생님과 친구들에게 {core}와(과) {sub}의 태도로 다가가겠습니다.",
-                    "우리의 약속인 {core} 실천을 통해 더 성숙한 가회인이 되겠습니다."
-                ],
+                tag: "Student", color: "text-blue-600", bgColor: "bg-blue-50",
                 rules: ["타인의 권리 존중", "자율과 책임 조화", "폭력 없는 학교", "학습권 보호"]
             },
             parent: {
-                title: "학부모로서 실천할 성숙한 약속",
-                guidelineTitle: "성숙한 학부모의 책임",
-                tag: "Parent",
-                color: "text-emerald-600",
-                bgColor: "bg-emerald-50",
-                templates: [
-                    "우리 학부모는 {core} 교육을 통해 자녀의 성장을 돕겠습니다.",
-                    "학교를 신뢰하며 {core}와(과) {sub}의 가치를 함께 나누겠습니다.",
-                    "{core}이(가) 살아있는 가정이 되도록 {sub}의 마음으로 지도하겠습니다.",
-                    "선생님의 열정을 {core}로 응원하고 {sub}으로 협력하겠습니다.",
-                    "우리 아이들이 {core} 속에서 배울 수 있도록 책임 있게 행동하겠습니다."
-                ],
+                tag: "Parent", color: "text-emerald-600", bgColor: "bg-emerald-50",
                 rules: ["교육활동 신뢰", "인성 교육 실천", "상호 존중 문화", "공감과 소통"]
             },
             school: {
-                title: "교직원으로서 실천할 성숙한 약속",
-                guidelineTitle: "성숙한 교직원의 책임",
-                tag: "Teacher",
-                color: "text-rose-600",
-                bgColor: "bg-rose-50",
-                templates: [
-                    "우리 교직원은 {core}을(를) 지표 삼아 공정한 교육을 실천하겠습니다.",
-                    "학생 한 명 한 명을 {core}와(과) {sub}의 마음으로 보듬겠습니다.",
-                    "민주적인 학교 안에서 {core}와(과) {sub}이(가) 꽃피게 하겠습니다.",
-                    "전문성을 갖추어 {core} 넘치는 수업과 지도를 책임지겠습니다.",
-                    "{core}의 본보기가 되어 안전하고 행복한 가회중을 만들겠습니다."
-                ],
+                tag: "Teacher", color: "text-rose-600", bgColor: "bg-rose-50",
                 rules: ["안전한 학습 환경", "합리적 생활지도", "민주적 공동체", "인격 존중"]
             }
         };
@@ -242,37 +233,49 @@
             renderAll();
         };
 
-        function generateInsights(counts) {
+        function shuffleArray(array) {
+            return [...array].sort(() => Math.random() - 0.5);
+        }
+
+        function generateCombinedInsights(counts) {
             const insightBox = document.getElementById('ai-insight');
             const insightList = document.getElementById('insight-list');
-            const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+            const sortedWords = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(e => e[0]);
 
-            if (entries.length < 1) {
+            if (sortedWords.length < 1) {
                 insightBox.classList.add('hidden');
                 return;
             }
 
-            const coreWord = entries[0][0]; // 가장 빈도 높은 단어
-            const otherWords = entries.slice(1).map(e => e[0]); // 나머지 단어들
-            const templates = infoSet[currentTab].templates;
+            const coreWord = sortedWords[0]; // 최빈 단어 (반드시 포함)
+            const pool = sortedWords.length > 1 ? sortedWords.slice(1) : [coreWord];
+            const engine = sentenceEngine[currentTab];
             
             let html = "";
-            templates.forEach((template, index) => {
-                // 서브 단어 선택 (나머지 단어가 있으면 순환하며 선택, 없으면 최빈단어 재사용)
-                const subWord = otherWords.length > 0 ? otherWords[index % otherWords.length] : coreWord;
-                
-                let sentence = template.replace(/{core}/g, `<span class="text-indigo-600 font-black underline decoration-indigo-200 underline-offset-4">${coreWord}</span>`)
-                                       .replace(/{sub}/g, `<span class="text-slate-800 font-bold">${subWord}</span>`);
+            
+            for (let i = 0; i < 5; i++) {
+                // 풀에서 무작위로 2개 단어 추출 (단어가 부족하면 최빈 단어로 대체)
+                const shuffledPool = shuffleArray(pool);
+                const w1 = shuffledPool[0] || coreWord;
+                const w2 = shuffledPool[1] || coreWord;
+                const w3 = coreWord; // 최빈 단어는 매 문장 혹은 핵심 위치에 배치
+
+                const intro = engine.intro[i % engine.intro.length];
+                const connector = engine.connectors[i % engine.connectors.length].replace(/{word1}/g, `<span class="highlight-word">${w1}</span>`);
+                const action = engine.actions[i % engine.actions.length].replace(/{word2}/g, `<span class="highlight-word">${w2}</span>`).replace(/{word3}/g, `<span class="highlight-word">${w3}</span>`);
+                const conclusion = engine.conclusion[i % engine.conclusion.length];
+
+                const fullSentence = `${intro} ${connector} ${action} ${conclusion}`;
                 
                 html += `
-                    <div class="insight-item animate__animated animate__fadeInLeft" style="animation-delay: ${index * 150}ms">
-                        <p class="text-slate-600 font-medium leading-relaxed flex items-start gap-3">
-                            <span class="text-indigo-400 mt-1">●</span>
-                            <span>${sentence}</span>
+                    <div class="insight-item animate__animated animate__fadeInLeft" style="animation-delay: ${i * 100}ms">
+                        <p class="text-slate-600 font-medium leading-relaxed flex items-start gap-3 text-[15px]">
+                            <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-indigo-400 flex-shrink-0"></span>
+                            <span>${fullSentence}</span>
                         </p>
                     </div>
                 `;
-            });
+            }
 
             insightList.innerHTML = html;
             insightBox.classList.remove('hidden');
@@ -306,14 +309,14 @@
                 return `<span class="word-item font-black ${currentData.color}" style="font-size: ${size}rem; opacity: ${opacity}">${word}</span>`;
             }).join('');
 
-            generateInsights(counts);
+            generateCombinedInsights(counts);
         }
 
         function renderGuidelines() {
             const container = document.getElementById('guidelines');
             const data = infoSet[currentTab];
-            document.getElementById('input-title').innerText = data.title;
-            document.getElementById('guideline-title').innerText = data.guidelineTitle;
+            document.getElementById('input-title').innerText = (currentTab === 'student' ? '학생' : currentTab === 'parent' ? '학부모' : '교직원') + "으로서 실천할 성숙한 약속";
+            document.getElementById('guideline-title').innerText = "성숙한 " + (currentTab === 'student' ? '학생' : currentTab === 'parent' ? '학부모' : '교직원') + "의 책임";
             
             container.innerHTML = data.rules.map((g, i) => `
                 <div class="flex gap-4 items-center animate__animated animate__fadeInRight" style="animation-delay: ${i*100}ms">
