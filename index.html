@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
 import { 
   getFirestore, 
   collection, 
   addDoc, 
   onSnapshot, 
-  query 
-} from 'firebase/firestore';
+  query,
+  orderBy
+} from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
 import { Users, GraduationCap, Heart, Send, Sparkles, ClipboardCheck, ArrowRight, ShieldCheck, Info } from 'lucide-react';
 
 // --- Firebase Configuration ---
-// 2단계에서 복사하신 실제 키값으로 업데이트되었습니다.
+// 사용자가 제공한 실제 키값입니다.
 const firebaseConfig = {
   apiKey: "AIzaSyBcH1PUzFhMazQZxat54-cWz2wlvCsEPpk",
   authDomain: "gahoems.firebaseapp.com",
@@ -28,7 +29,7 @@ const finalConfig = typeof __firebase_config !== 'undefined'
 const app = initializeApp(finalConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'school-culture-app';
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'gaho-culture-app';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -36,14 +37,15 @@ const App = () => {
   const [activeTab, setActiveTab] = useState('student');
   const [inputText, setInputText] = useState('');
   const [responses, setResponses] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 익명 로그인 및 데이터 연결
+  // 1. 익명 로그인 인증 (RULE 3 준수)
   useEffect(() => {
     const initAuth = async () => {
       try {
         await signInAnonymously(auth);
       } catch (error) {
-        console.error("Firebase 연결 실패:", error);
+        console.error("Firebase 인증 실패:", error);
       }
     };
     initAuth();
@@ -53,23 +55,28 @@ const App = () => {
     return () => unsubscribeAuth();
   }, []);
 
+  // 2. 실시간 데이터 스냅샷 (RULE 1, 2 준수)
   useEffect(() => {
     if (!user) return;
-    // 컬렉션 경로: /artifacts/{appId}/public/data/pledges
-    const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'pledges'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    
+    // 복합 쿼리 방지를 위해 단순 collection 호출 후 메모리에서 처리
+    const pledgesCol = collection(db, 'artifacts', appId, 'public', 'data', 'pledges');
+    
+    const unsubscribe = onSnapshot(pledgesCol, (snapshot) => {
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setResponses(data);
     }, (err) => {
-      console.error("데이터 가져오기 오류:", err);
+      console.error("Firestore 404 또는 권한 오류:", err);
     });
+    
     return () => unsubscribe();
   }, [user]);
 
+  // 워드클라우드 데이터 가공
   const wordCloudData = useMemo(() => {
     const counts = { student: {}, parent: {}, school: {} };
     responses.forEach(res => {
-      if (!res.text || !res.role) return;
+      if (!res.text || !res.role || !counts[res.role]) return;
       const words = res.text.split(/\s+/).filter(w => w.length > 1);
       words.forEach(w => {
         counts[res.role][w] = (counts[res.role][w] || 0) + 1;
@@ -78,8 +85,10 @@ const App = () => {
     return counts;
   }, [responses]);
 
+  // 상위 키워드 기반 문장 생성
   const generatedSentences = useMemo(() => {
     const getTopWords = (role) => {
+      if (!wordCloudData[role]) return [];
       return Object.entries(wordCloudData[role])
         .sort((a, b) => b[1] - a[1])
         .slice(0, 3)
@@ -89,17 +98,19 @@ const App = () => {
     const pWords = getTopWords('parent');
     const scWords = getTopWords('school');
 
-    if (responses.length < 3) return ["함께 참여하여 소중한 약속을 채워주세요."];
+    if (responses.length < 2) return ["우리 학교의 멋진 약속이 이곳에 채워집니다."];
     return [
-      `학생들은 ${sWords[0] || '존중'}과 ${sWords[1] || '배려'}를 통해 즐거운 학교를 만들겠습니다.`,
-      `학부모님은 학교를 ${pWords[0] || '신뢰'}하고 따뜻한 ${pWords[1] || '격려'}를 보내겠습니다.`,
-      `학교는 학생의 ${scWords[0] || '안전'}과 ${scWords[1] || '성장'}을 위해 최선을 다하겠습니다.`
+      `학생들은 ${sWords[0] || '존중'}과 ${sWords[1] || '배려'}로 행복한 교실을 만듭니다.`,
+      `학부모님은 학교를 ${pWords[0] || '신뢰'}하며 아이들의 성장을 응원합니다.`,
+      `학교는 ${scWords[0] || '안전'}한 환경에서 올바른 교육을 책임지겠습니다.`
     ];
   }, [wordCloudData, responses]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!inputText.trim() || !user) return;
+    if (!inputText.trim() || !user || isSubmitting) return;
+
+    setIsSubmitting(true);
     try {
       await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'pledges'), {
         role: activeTab,
@@ -109,120 +120,145 @@ const App = () => {
       });
       setInputText('');
     } catch (err) {
-      console.error("데이터 저장 실패: ", err);
+      console.error("데이터 저장 실패:", err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const IntroView = () => (
-    <div className="flex flex-col items-center justify-center min-h-screen text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-50">
-      <div className="max-w-2xl w-full space-y-8 bg-white p-12 rounded-[2.5rem] shadow-2xl">
-        <ShieldCheck size={48} className="mx-auto text-blue-600 mb-4" />
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">학교문화 책임규약 안내</h1>
-        <p className="text-lg text-slate-600 leading-relaxed">
-          학교문화 책임규약은 우리 학교 구성원 모두가<br/>
-          안전하고 행복한 학교를 만들기 위해 각자의 위치에서<br/>
-          가져야 할 책임을 약속하는 것입니다.
-        </p>
-        <div className="grid grid-cols-3 gap-4 pt-4">
-          <div className="text-sm font-bold text-blue-600">#학생_존중</div>
-          <div className="text-sm font-bold text-emerald-600">#학부모_신뢰</div>
-          <div className="text-sm font-bold text-rose-600">#학교_책임</div>
+    <div className="flex flex-col items-center justify-center min-h-screen text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="max-w-2xl w-full space-y-8 bg-white p-12 rounded-[3rem] shadow-2xl border border-white/50">
+        <div className="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center mx-auto shadow-lg shadow-blue-200">
+          <ShieldCheck size={40} className="text-white" />
+        </div>
+        <div className="space-y-4">
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">학교문화 책임규약 안내</h1>
+          <p className="text-lg text-slate-600 leading-relaxed">
+            '학교문화 책임규약'은 우리 학교 구성원 모두가<br/>
+            안전하고 행복한 학교를 만들기 위해 각자의 위치에서<br/>
+            가져야 할 <strong>책임</strong>을 약속하는 것입니다.
+          </p>
+        </div>
+        <div className="grid grid-cols-3 gap-3 pt-4">
+          {['학생 존중', '학부모 신뢰', '학교 책임'].map((tag, i) => (
+            <div key={i} className="py-2 px-1 bg-slate-50 rounded-xl text-xs font-bold text-slate-500 border border-slate-100">
+              #{tag.replace(' ', '_')}
+            </div>
+          ))}
         </div>
         <button 
           onClick={() => setShowMain(true)}
-          className="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold text-xl hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-200"
+          className="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold text-xl hover:bg-blue-700 transition-all shadow-xl hover:shadow-blue-200 flex items-center justify-center gap-3"
         >
-          참여 시작하기
+          우리들의 다짐 시작하기 <ArrowRight size={24}/>
         </button>
       </div>
     </div>
   );
 
   const MainView = () => (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8">
+    <div className="min-h-screen bg-slate-50 p-4 md:p-8 animate-in fade-in duration-500">
       <div className="max-w-5xl mx-auto space-y-8">
-        <header className="flex justify-between items-center border-b pb-6">
+        <header className="flex justify-between items-center border-b border-slate-200 pb-6">
           <div>
-            <h1 className="text-2xl font-black text-slate-800 tracking-tight">함께 만드는 학교문화 책임규약</h1>
-            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Gaho Elementary School Culture</p>
+            <h1 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+              <GraduationCap className="text-blue-600" /> 함께 만드는 학교문화 책임규약
+            </h1>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Gaho Elementary School Culture Project</p>
           </div>
-          <button onClick={() => setShowMain(false)} className="bg-white p-3 rounded-xl shadow-sm text-slate-400 hover:text-blue-600 transition-colors border border-slate-100">
+          <button onClick={() => setShowMain(false)} className="bg-white p-3 rounded-2xl shadow-sm text-slate-400 hover:text-blue-600 transition-all border border-slate-100 hover:rotate-12">
             <Info size={20}/>
           </button>
         </header>
 
-        <section className="bg-white rounded-[2rem] shadow-xl overflow-hidden border border-slate-100">
-          <div className="flex bg-slate-50 p-1">
+        <section className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100">
+          <div className="flex bg-slate-50 p-1.5">
             {['student', 'parent', 'school'].map(id => {
                const labels = {student: '학생', parent: '학부모', school: '학교'};
+               const activeColors = {student: 'text-blue-600', parent: 'text-emerald-600', school: 'text-rose-600'};
                return (
                 <button
                   key={id}
                   onClick={() => setActiveTab(id)}
                   className={`flex-1 py-4 rounded-2xl font-bold text-sm transition-all
-                    ${activeTab === id ? `bg-white text-blue-600 shadow-md` : 'text-slate-400 hover:text-slate-600'}`}
+                    ${activeTab === id ? `bg-white ${activeColors[id]} shadow-md` : 'text-slate-400 hover:text-slate-600'}`}
                 >
                   {labels[id]}
                 </button>
               );
             })}
           </div>
-          <form onSubmit={handleSubmit} className="p-8 flex flex-col md:flex-row gap-3">
-            <input
-              type="text"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder={`${activeTab === 'student' ? '학생으로서' : activeTab === 'parent' ? '학부모로서' : '학교로서'} 다할 책임을 적어주세요`}
-              className="flex-1 px-6 py-5 bg-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all text-lg shadow-inner"
-            />
-            <button type="submit" className="px-8 bg-slate-900 text-white rounded-2xl hover:bg-blue-600 transition-all shadow-lg font-bold flex items-center justify-center gap-2">
-              등록하기 <Send size={20}/>
+          <form onSubmit={handleSubmit} className="p-8 flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder={`${activeTab === 'student' ? '학생으로서' : activeTab === 'parent' ? '학부모로서' : '학교로서'} 어떤 책임을 다할까요?`}
+                className="w-full px-6 py-5 bg-slate-50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:bg-white transition-all text-lg shadow-inner border border-slate-100"
+              />
+            </div>
+            <button 
+              type="submit" 
+              disabled={!inputText.trim() || isSubmitting}
+              className="px-10 bg-slate-900 text-white rounded-2xl hover:bg-blue-600 disabled:bg-slate-200 transition-all shadow-lg font-bold flex items-center justify-center gap-2 h-[64px]"
+            >
+              {isSubmitting ? '전송 중...' : '약속 등록'} <Send size={20}/>
             </button>
           </form>
         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          <div className="lg:col-span-3 bg-white p-8 rounded-[2rem] shadow-lg border border-slate-100 min-h-[450px]">
-             <h2 className="text-xl font-bold mb-8 flex items-center gap-2 border-b pb-4">
-               <Sparkles className="text-amber-400"/> 실시간 우리들의 목소리
+          <div className="lg:col-span-3 bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100 min-h-[500px] flex flex-col">
+             <h2 className="text-xl font-bold mb-8 flex items-center gap-2 border-b border-slate-50 pb-4">
+               <Sparkles className="text-amber-400" size={24}/> 실시간 마음 모으기
              </h2>
-             <div className="flex flex-wrap items-center justify-center gap-6 p-4">
+             <div className="flex-1 flex flex-wrap items-center justify-center gap-6 p-4">
                {Object.keys(wordCloudData[activeTab]).length > 0 ? (
                  Object.entries(wordCloudData[activeTab]).map(([word, count]) => (
                    <span 
                     key={word} 
                     style={{ 
-                      fontSize: `${Math.min(1.2 + count * 0.4, 4)}rem`,
-                      opacity: Math.min(0.5 + count * 0.1, 1)
+                      fontSize: `${Math.min(1.2 + count * 0.5, 4.5)}rem`,
+                      opacity: Math.min(0.6 + count * 0.1, 1)
                     }} 
-                    className={`font-black tracking-tighter drop-shadow-sm transition-all
+                    className={`font-black tracking-tight drop-shadow-sm transition-all hover:scale-110 cursor-default
                       ${activeTab === 'student' ? 'text-blue-600' : activeTab === 'parent' ? 'text-emerald-600' : 'text-rose-600'}`}
                    >
                      {word}
                    </span>
                  ))
                ) : (
-                 <div className="text-slate-300 py-20 italic text-center">
-                    첫 번째 다짐의 주인공이 되어주세요!
+                 <div className="text-slate-300 py-20 italic text-center space-y-4">
+                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto">
+                      <Heart size={32} className="animate-pulse text-slate-200" />
+                    </div>
+                    <p>우리 학교의 첫 번째 약속을 기다립니다.</p>
                  </div>
                )}
              </div>
           </div>
-          <div className="lg:col-span-2 bg-slate-900 text-white p-8 rounded-[2rem] shadow-2xl space-y-8 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl rounded-full -mr-16 -mt-16"></div>
-            <h2 className="text-xl font-bold text-blue-400 border-b border-white/10 pb-4 flex items-center gap-2">
-              <ClipboardCheck size={20}/> 규약 제안 (자동생성)
-            </h2>
-            <div className="space-y-10 relative z-10">
-              {generatedSentences.map((s, i) => (
-                <div key={i} className="flex gap-4 items-start animate-in slide-in-from-bottom duration-500" style={{ animationDelay: `${i * 200}ms` }}>
-                  <span className="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-lg text-sm flex items-center justify-center font-black shadow-lg shadow-blue-900/50">0{i+1}</span>
-                  <p className="text-slate-200 text-lg leading-relaxed font-medium italic">"{s}"</p>
-                </div>
-              ))}
+
+          <div className="lg:col-span-2 bg-slate-900 text-white p-10 rounded-[2.5rem] shadow-2xl space-y-10 relative overflow-hidden flex flex-col justify-between">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/20 blur-[80px] rounded-full -mr-20 -mt-20"></div>
+            
+            <div className="space-y-8 relative z-10">
+              <h2 className="text-xl font-bold text-blue-400 border-b border-white/10 pb-4 flex items-center gap-3">
+                <ClipboardCheck size={24}/> 규약 자동 제안
+              </h2>
+              <div className="space-y-12">
+                {generatedSentences.map((s, i) => (
+                  <div key={i} className="flex gap-5 items-start group">
+                    <span className="flex-shrink-0 w-10 h-10 bg-white/10 group-hover:bg-blue-600 transition-colors rounded-xl text-sm flex items-center justify-center font-black border border-white/10">0{i+1}</span>
+                    <p className="text-slate-200 text-xl leading-relaxed font-semibold italic">"{s}"</p>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="pt-6 text-[10px] text-slate-500 text-center uppercase tracking-widest border-t border-white/5">
-              Collective Agreement System
+
+            <div className="pt-8 text-[10px] text-slate-500 text-center uppercase tracking-[0.3em] font-bold border-t border-white/5">
+              Gaho Collective Agreement System
             </div>
           </div>
         </div>
