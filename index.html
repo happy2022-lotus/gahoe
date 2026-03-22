@@ -281,25 +281,47 @@
             generateCombinedInsights(counts);
         }
 
-        function generateCombinedInsights(counts) {
-            const insightBox = document.getElementById('ai-insight');
-            const insightList = document.getElementById('insight-list');
-            const allWords = Object.keys(counts);
-            if (allWords.length < 1) { insightBox.classList.add('hidden'); return; }
+       function generateCombinedInsights(counts) {
+    const insightBox = document.getElementById('ai-insight');
+    const insightList = document.getElementById('insight-list');
+    
+    // 1. 단어들을 빈도수 순으로 정렬 (내림차순)
+    const sortedWords = Object.entries(counts)
+        .sort((a, b) => b[1] - a[1]) // 빈도 높은 순
+        .map(entry => entry[0]);    // 단어만 추출
 
-            let shuffledWords = [...allWords].sort(() => Math.random() - 0.5);
-            while(shuffledWords.length < 10) shuffledWords = shuffledWords.concat(shuffledWords);
+    if (sortedWords.length < 1) { 
+        insightBox.classList.add('hidden'); 
+        return; 
+    }
 
-            let html = "";
-            for (let i = 0; i < 3; i++) {
-                const w1 = shuffledWords[i*2], w2 = shuffledWords[i*2+1];
-                const text = sentenceEngine[currentTab][i].replace('{w1}', `<span class="highlight-word">${w1}</span>`).replace('{w2}', `<span class="highlight-word">${w2}</span>`);
-                html += `<div class="insight-item"><p class="text-slate-600 text-sm font-medium">● ${text}</p></div>`;
-            }
-            insightList.innerHTML = html;
-            insightBox.classList.remove('hidden');
-        }
+    // 2. 단어가 부족할 경우를 대비해 7개까지 채우기 (데이터가 적을 때 오류 방지)
+    const w = [];
+    for (let i = 0; i < 7; i++) {
+        // 단어가 7개보다 적으면 이미 있는 단어들을 순환해서 채움
+        w[i] = sortedWords[i] || sortedWords[i % sortedWords.length] || "약속";
+    }
 
+    // 3. 문장 엔진에서 현재 탭에 맞는 문장들 가져와서 {w1}~{w7} 치환
+    let html = "";
+    const sentences = sentenceEngine[currentTab];
+    
+    sentences.forEach((rawText) => {
+        let processedText = rawText
+            .replace(/{w1}/g, `<span class="highlight-word">${w[0]}</span>`)
+            .replace(/{w2}/g, `<span class="highlight-word">${w[1]}</span>`)
+            .replace(/{w3}/g, `<span class="highlight-word">${w[2]}</span>`)
+            .replace(/{w4}/g, `<span class="highlight-word">${w[3]}</span>`)
+            .replace(/{w5}/g, `<span class="highlight-word">${w[4]}</span>`)
+            .replace(/{w6}/g, `<span class="highlight-word">${w[5]}</span>`)
+            .replace(/{w7}/g, `<span class="highlight-word">${w[6]}</span>`);
+            
+        html += `<div class="insight-item"><p class="text-slate-600 text-sm font-medium">● ${processedText}</p></div>`;
+    });
+
+    insightList.innerHTML = html;
+    insightBox.classList.remove('hidden');
+}
         function renderGuidelines() {
             const container = document.getElementById('guidelines');
             const data = infoSet[currentTab];
