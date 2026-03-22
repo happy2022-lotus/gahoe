@@ -11,23 +11,62 @@
         body { font-family: 'Pretendard', sans-serif; background-color: #F8FAFC; }
         .glass { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
         .tab-active { background: white; color: #4F46E5; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transform: translateY(-2px); }
-        .word-item { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; display: inline-block; line-height: 1.2; }
+        .word-item { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; display: inline-block; }
         .word-item:hover { transform: scale(1.15) rotate(2deg); filter: brightness(1.1); }
-        .admin-mode .word-item { cursor: pointer; border: 1px dashed #ef4444; padding: 2px 4px; border-radius: 8px; }
-        .admin-mode .word-item:hover { background-color: #fef2f2; color: #ef4444 !important; }
+        
+        /* 관리자 모드 전용 스타일 */
+        .admin-active .word-item { cursor: pointer; border-bottom: 2px dashed #ef4444; }
+        .admin-active .word-item:hover { background-color: #fef2f2; color: #ef4444 !important; }
+        .locked-input { background-color: #f1f5f9 !important; cursor: not-allowed; opacity: 0.7; }
+        
         .summary-box { background: linear-gradient(135deg, rgba(79, 70, 229, 0.05), rgba(139, 92, 246, 0.05)); border-left: 6px solid #4F46E5; }
         .intro-card { transition: all 0.3s ease; border: 1px solid #E2E8F0; }
+        .intro-card:hover { transform: translateY(-8px); border-color: #4F46E5; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05); }
+        .insight-item { border-bottom: 1px dashed #E2E8F0; padding: 14px 0; }
+        .insight-item:last-child { border-bottom: none; }
         .highlight-word { color: #4F46E5; font-weight: 900; position: relative; padding: 0 2px; }
         .highlight-word::after { content: ''; position: absolute; bottom: 2px; left: 0; width: 100%; height: 6px; background: rgba(79, 70, 229, 0.1); z-index: -1; }
-        .locked-input { background-color: #F1F5F9 !important; cursor: not-allowed; opacity: 0.6; }
     </style>
 </head>
 <body class="text-slate-800">
 
     <div id="intro-screen" class="min-h-screen flex items-center justify-center p-4 md:p-10 bg-gradient-to-br from-slate-50 to-indigo-50">
-        <div class="max-w-6xl w-full space-y-10 animate__animated animate__fadeIn text-center">
-            <h1 class="text-4xl md:text-6xl font-black text-slate-900 tracking-tight">가회중학교<br/><span class="text-indigo-600">학교문화 책임규약</span></h1>
-            <button onclick="startApp()" class="px-12 py-6 bg-slate-900 text-white rounded-[2rem] font-bold text-2xl hover:bg-indigo-600 transition-all shadow-2xl">참여 시작하기</button>
+        <div class="max-w-6xl w-full space-y-10 animate__animated animate__fadeIn">
+            <div class="text-center space-y-4">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-100 text-indigo-700 rounded-full font-bold text-sm tracking-widest mb-2">
+                    GAHOE MIDDLE SCHOOL
+                </div>
+                <h1 class="text-4xl md:text-6xl font-black text-slate-900 tracking-tight">모두의 학교를 위한<br/><span class="text-indigo-600">학교문화 책임규약</span></h1>
+                <p class="text-slate-500 text-lg md:text-xl max-w-2xl mx-auto font-medium">
+                    책임규약은 우리 모두가 행복한 가회 교육 공동체를 만들기 위해 서로의 권리와 책임을 확인하고 실천을 다짐하는 약속입니다.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+                <div class="intro-card bg-white p-8 rounded-[2.5rem] space-y-4">
+                    <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900">학생의 책임</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">타인의 학습권과 인권을 존중하며 학교의 질서를 준수합니다.</p>
+                </div>
+                <div class="intro-card bg-white p-8 rounded-[2.5rem] space-y-4">
+                    <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 14c1.49 0 2.82.47 3.91 1.25V7c0-1.1-.9-2-2-2h-8c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v13h1.91C5.09 18.47 6.42 18 7.91 18s2.82.47 3.91 1.25V7h8v7.25c1.09-.78 2.42-1.25 3.91-1.25z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900">학부모의 책임</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">학교 교육활동을 신뢰하고 지원하며, 자녀를 올바르게 지도합니다.</p>
+                </div>
+                <div class="intro-card bg-white p-8 rounded-[2.5rem] space-y-4">
+                    <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900">교직원의 책임</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">학생의 다양성을 존중하며, 공정하고 안전한 환경을 조성합니다.</p>
+                </div>
+            </div>
+            <div class="flex flex-col items-center gap-6 pt-4">
+                <button onclick="startApp()" class="px-12 py-6 bg-slate-900 text-white rounded-[2rem] font-bold text-2xl hover:bg-indigo-600 transition-all shadow-2xl active:scale-95">참여 시작하기</button>
+            </div>
         </div>
     </div>
 
@@ -35,28 +74,30 @@
         <div class="max-w-6xl mx-auto space-y-6">
             <header class="flex justify-between items-center glass p-6 rounded-[2rem] shadow-sm">
                 <div class="flex items-center gap-4 cursor-pointer group" onclick="window.activateAdmin()">
-                    <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-active:scale-90 transition-transform">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
                     </div>
                     <div>
                         <h1 class="text-xl font-black text-slate-800">가회중 책임규약</h1>
-                        <p id="admin-indicator" class="text-[10px] text-slate-400 font-bold uppercase">Gahoe MS Community</p>
+                        <p id="admin-indicator" class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">Gahoe MS Community</p>
                     </div>
                 </div>
-                <button onclick="location.reload()" class="p-2 text-slate-400 hover:text-indigo-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></button>
+                <button onclick="location.reload()" class="p-2 text-slate-400 hover:text-indigo-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </button>
             </header>
 
             <div class="grid grid-cols-3 gap-3 glass p-2 rounded-3xl">
-                <button onclick="switchTab('student')" id="tab-student" class="tab-active py-4 rounded-2xl font-bold text-sm">학생</button>
-                <button onclick="switchTab('parent')" id="tab-parent" class="py-4 rounded-2xl font-bold text-sm text-slate-400">학부모</button>
-                <button onclick="switchTab('school')" id="tab-school" class="py-4 rounded-2xl font-bold text-sm text-slate-400">교직원</button>
+                <button onclick="switchTab('student')" id="tab-student" class="tab-active py-4 rounded-2xl font-bold text-sm transition-all">학생</button>
+                <button onclick="switchTab('parent')" id="tab-parent" class="py-4 rounded-2xl font-bold text-sm transition-all text-slate-400">학부모</button>
+                <button onclick="switchTab('school')" id="tab-school" class="py-4 rounded-2xl font-bold text-sm transition-all text-slate-400">교직원</button>
             </div>
 
             <section class="bg-white rounded-[3rem] shadow-xl p-8 border border-white text-center">
                 <div class="flex flex-col items-center mb-6">
-                    <h2 id="input-title" class="text-2xl font-extrabold text-slate-800">약속 등록하기</h2>
-                    <button id="lock-toggle-btn" onclick="window.toggleSystemLock()" class="hidden mt-3 px-4 py-1 bg-red-50 text-red-600 rounded-full text-xs font-bold border border-red-100">
-                        🔓 작성 허용 중
+                    <h2 id="input-title" class="text-2xl font-extrabold text-slate-800">학생으로서 실천할 성숙한 약속</h2>
+                    <button id="lock-toggle-btn" onclick="window.toggleSystemLock()" class="hidden mt-3 px-4 py-1.5 bg-red-50 text-red-600 rounded-full text-xs font-bold border border-red-100 hover:bg-red-100 transition-colors">
+                        🔓 작성 허용 중 (클릭 시 잠금)
                     </button>
                 </div>
                 <form id="pledge-form" class="flex flex-col md:flex-row gap-4 max-w-3xl mx-auto">
@@ -64,14 +105,14 @@
                            class="flex-1 px-8 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] focus:outline-none focus:ring-4 focus:ring-indigo-100 text-lg shadow-inner">
                     <button type="submit" id="submit-btn" class="px-10 bg-slate-900 text-white rounded-[2rem] font-bold h-[70px]">등록하기</button>
                 </form>
-                <p id="lock-notice" class="hidden mt-4 text-red-500 font-bold animate__animated animate__pulse infinite">⚠️ 현재는 작성할 수 없는 기간입니다.</p>
+                <p id="lock-notice" class="hidden mt-4 text-red-500 font-bold animate__animated animate__shakeX">⚠️ 현재는 작성할 수 없는 기간입니다.</p>
             </section>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div class="lg:col-span-7 bg-white p-10 rounded-[3rem] shadow-xl min-h-[550px] flex flex-col" id="cloud-card">
+                <div id="cloud-container-card" class="lg:col-span-7 bg-white p-10 rounded-[3rem] shadow-xl border border-white min-h-[600px] flex flex-col">
                     <div class="flex justify-between mb-8 border-b pb-4">
-                        <h3 class="font-black text-slate-800">실시간 키워드</h3>
-                        <span id="role-tag" class="text-[10px] px-3 py-1 rounded-full font-black uppercase">Student</span>
+                        <h3 class="font-black text-slate-800 text-lg">실시간 가회 키워드</h3>
+                        <span id="role-tag" class="text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest">Student</span>
                     </div>
                     <div id="word-cloud" class="flex-1 flex flex-wrap items-center justify-center gap-6 p-4"></div>
                     <div id="ai-insight" class="mt-8 p-8 summary-box rounded-[2rem] hidden">
@@ -79,9 +120,9 @@
                     </div>
                 </div>
 
-                <div class="lg:col-span-5 bg-slate-900 text-white p-10 rounded-[3rem] shadow-2xl space-y-8">
-                    <h3 id="guideline-title" class="text-indigo-400 font-black text-lg border-b border-white/10 pb-4">약속 가이드라인</h3>
-                    <div id="guidelines" class="space-y-6 text-slate-300"></div>
+                <div class="lg:col-span-5 bg-slate-900 text-white p-10 rounded-[3rem] shadow-2xl space-y-8 flex flex-col">
+                    <h3 id="guideline-title" class="text-indigo-400 font-black text-lg border-b border-white/10 pb-4">성숙한 학생의 책임</h3>
+                    <div id="guidelines" class="space-y-6 text-slate-300 flex-1"></div>
                 </div>
             </div>
         </div>
@@ -90,7 +131,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBcH1PUzFhMazQZxat54-cWz2wlvCsEPpk",
@@ -111,40 +152,35 @@
         let isAdmin = false;
         let isSystemLocked = false;
 
-        // --- 핵심: 데이터 로드 ---
-        signInAnonymously(auth).then(() => {
-            // 1. 기존 데이터(pledges) 실시간 감시 (가장 중요)
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'pledges'), (snap) => {
-                allResponses = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderAll();
-            });
-
-            // 2. 잠금 설정 감시 (따로 분리)
-            onSnapshot(doc(db, 'artifacts', appId, 'public', 'settings', 'status'), (docSnap) => {
-                if(docSnap.exists()){
-                    isSystemLocked = docSnap.data().locked;
-                    updateLockUI();
-                }
-            });
-        });
-
-        // --- 관리자/잠금 로직 ---
+        // --- 관리자 기능 로직 ---
         window.activateAdmin = () => {
             const pw = prompt("관리자 암호를 입력하세요.");
             if(pw === "gahoe1234") {
                 isAdmin = !isAdmin;
-                document.getElementById('cloud-card').classList.toggle('admin-mode', isAdmin);
+                document.getElementById('cloud-container-card').classList.toggle('admin-active', isAdmin);
                 document.getElementById('lock-toggle-btn').classList.toggle('hidden', !isAdmin);
                 document.getElementById('admin-indicator').innerText = isAdmin ? "ADMIN MODE ACTIVE" : "Gahoe MS Community";
                 document.getElementById('admin-indicator').style.color = isAdmin ? "#ef4444" : "#94a3b8";
-                renderAll();
+                alert(isAdmin ? "관리자 모드가 활성화되었습니다. 단어를 클릭하면 삭제할 수 있습니다." : "관리자 모드가 해제되었습니다.");
+                renderCloud();
             }
         };
 
         window.toggleSystemLock = async () => {
             if(!isAdmin) return;
             const newState = !isSystemLocked;
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'settings', 'status'), { locked: newState });
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'settings', 'status'), { locked: newState });
+            } catch(e) { console.error("잠금 설정 실패:", e); }
+        };
+
+        window.handleDelete = async (docId, word) => {
+            if(!isAdmin) return;
+            if(confirm(`"${word}"가 포함된 약속 문구 전체를 삭제하시겠습니까?`)) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'pledges', docId));
+                } catch(e) { alert("삭제 실패: 권한이 없습니다."); }
+            }
         };
 
         function updateLockUI() {
@@ -154,38 +190,35 @@
             const toggleBtn = document.getElementById('lock-toggle-btn');
 
             if(isSystemLocked) {
-                input.disabled = true; submitBtn.disabled = true;
+                input.disabled = true;
+                submitBtn.disabled = true;
                 input.classList.add('locked-input');
-                input.placeholder = "현재 작성이 제한되었습니다.";
+                input.placeholder = "현재 작성이 중단되었습니다.";
                 notice.classList.remove('hidden');
                 toggleBtn.innerText = "🔒 작성 금지 중 (클릭 시 해제)";
+                toggleBtn.className = "mt-3 px-4 py-1.5 bg-slate-900 text-white rounded-full text-xs font-bold border border-slate-700";
             } else {
-                input.disabled = false; submitBtn.disabled = false;
+                input.disabled = false;
+                submitBtn.disabled = false;
                 input.classList.remove('locked-input');
                 input.placeholder = "키워드를 입력하세요";
                 notice.classList.add('hidden');
                 toggleBtn.innerText = "🔓 작성 허용 중 (클릭 시 잠금)";
+                toggleBtn.className = "mt-3 px-4 py-1.5 bg-red-50 text-red-600 rounded-full text-xs font-bold border border-red-100";
             }
         }
 
-        window.handleDelete = async (id, text) => {
-            if(!isAdmin) return;
-            if(confirm(`"${text}" 항목을 삭제하시겠습니까?`)) {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'pledges', id));
-            }
-        };
-
-        // --- UI 렌더링 (기존 로직) ---
+        // --- 기존 데이터 로직 (유지) ---
         const sentenceEngine = {
-            student: ["우리 학생들은 {w1}의 자세로 {w2} 학교를 만듭니다.", "{w1}을(를) 실천하여 {w2}의 가치를 가꾸겠습니다.", "우리는 {w1}와(과) {w2}의 태도로 서로를 존중하겠습니다."],
-            parent: ["학부모로서 {w1} 교육에 힘쓰며 {w2} 활동을 지지하겠습니다.", "자녀가 {w1}을(를) 배우고 {w2}하도록 돕겠습니다."],
-            school: ["교직원은 {w1}의 환경을 조성하여 {w2} 교육을 실천하겠습니다.", "학생들의 {w1}를 존중하고 {w2}의 원칙을 지키겠습니다."]
+            student: ["우리 학생들은 {w1}의 자세로 친구를 대하며 {w2} 학교를 만듭니다.", "{w1}을(를) 실천하여 {w2}의 가치가 살아있는 교실을 가꾸겠습니다.", "우리는 {w1}와(과) {w2}의 태도로 서로의 권리를 존중하겠습니다.", "{w1}을(를) 바탕으로 선생님과 소통하며 {w2}의 책임을 다하겠습니다.", "가회중의 미래로서 {w1}와(과) {w2}가 공존하는 문화를 약속합니다."],
+            parent: ["학부모로서 {w1} 교육에 힘쓰며 학교의 {w2} 활동을 지지하겠습니다.", "자녀가 {w1}을(를) 배우고 {w2}하는 마음을 갖도록 함께 노력합니다.", "학교를 신뢰하고 {w1}와(과) {w2}의 마음으로 교육에 동참하겠습니다.", "가정에서 {w1}의 모범을 보이며 자녀의 {w2} 성장을 돕겠습니다.", "우리 아이들이 {w1}하고 {w2}하는 환경에서 자라도록 협력하겠습니다."],
+            school: ["교직원 모두는 {w1}의 환경을 조성하여 {w2} 교육을 실천하겠습니다.", "학생들의 {w1}를 존중하고 {w2}의 원칙을 지키는 교사가 되겠습니다.", "{w1} 기반의 지도로 아이들의 {w2} 발달을 적극 지원하겠습니다.", "안전한 학교에서 {w1}와(과) {w2}의 가치가 꽃피도록 노력하겠습니다.", "민주적인 소통으로 {w1}하고 {w2}하는 성숙한 공동체를 이끌겠습니다."]
         };
 
         const infoSet = {
-            student: { tag: "Student", color: "text-blue-600", rules: ["타인의 권리 존중", "자율과 책임 조화", "폭력 없는 학교", "학습권 보호"] },
-            parent: { tag: "Parent", color: "text-emerald-600", rules: ["교육활동 신뢰", "인성 교육 실천", "상호 존중 문화"] },
-            school: { tag: "Teacher", color: "text-rose-600", rules: ["안전한 학습 환경", "합리적 생활지도", "민주적 공동체"] }
+            student: { tag: "Student", color: "text-blue-600", bgColor: "bg-blue-50", rules: ["타인의 권리 존중", "자율과 책임 조화", "폭력 없는 학교", "학습권 보호"] },
+            parent: { tag: "Parent", color: "text-emerald-600", bgColor: "bg-emerald-50", rules: ["교육활동 신뢰", "인성 교육 실천", "상호 존중 문화", "공감과 소통"] },
+            school: { tag: "Teacher", color: "text-rose-600", bgColor: "bg-rose-50", rules: ["안전한 학습 환경", "합리적 생활지도", "민주적 공동체", "인격 존중"] }
         };
 
         window.startApp = () => {
@@ -197,57 +230,111 @@
         window.switchTab = (tab) => {
             currentTab = tab;
             ['student', 'parent', 'school'].forEach(t => {
-                document.getElementById(`tab-${t}`).className = (t === tab) ? 'tab-active py-4 rounded-2xl font-bold text-sm' : 'py-4 rounded-2xl font-bold text-sm text-slate-400';
+                document.getElementById(`tab-${t}`).className = (t === tab) ? 'tab-active py-4 rounded-2xl font-bold text-sm transition-all' : 'py-4 rounded-2xl font-bold text-sm transition-all text-slate-400';
             });
             renderAll();
         };
 
-        function renderAll() {
-            const data = infoSet[currentTab];
-            document.getElementById('role-tag').innerText = data.tag;
-            document.getElementById('role-tag').className = `text-[10px] bg-slate-100 ${data.color} px-3 py-1 rounded-full font-black uppercase`;
-            document.getElementById('guideline-title').innerText = "성숙한 " + (currentTab === 'student' ? '학생' : currentTab === 'parent' ? '학부모' : '교직원') + "의 책임";
-            document.getElementById('guidelines').innerHTML = data.rules.map((g, i) => `<p>● ${g}</p>`).join('');
+        function renderCloud() {
+            const container = document.getElementById('word-cloud');
+            const roleTag = document.getElementById('role-tag');
+            const currentData = infoSet[currentTab];
+            
+            roleTag.innerText = currentData.tag;
+            roleTag.className = `text-[10px] ${currentData.bgColor} ${currentData.color} px-3 py-1 rounded-full font-black uppercase tracking-widest`;
 
             const filtered = allResponses.filter(r => r.role === currentTab);
-            const container = document.getElementById('word-cloud');
             const counts = {};
             
-            const cloudHtml = filtered.map(item => {
-                return item.text.split(/[\s,]+/).filter(w => w.length > 0).map(word => {
-                    counts[word] = (counts[word] || 0) + 1;
-                    const size = Math.min(1.2 + (counts[word] * 0.2), 3);
-                    return `<span onclick="window.handleDelete('${item.id}', '${item.text}')" class="word-item font-black ${data.color}" style="font-size: ${size}rem;">${word}</span>`;
-                }).join('');
+            // 데이터 매핑 시 문서 ID도 함께 저장
+            const wordToDocMap = {}; 
+
+            filtered.forEach(r => {
+                const words = r.text.split(/[\s,]+/).filter(w => w.length > 1);
+                words.forEach(w => {
+                    counts[w] = (counts[w] || 0) + 1;
+                    wordToDocMap[w] = r.id; 
+                });
+            });
+
+            const entries = Object.entries(counts);
+            if(entries.length === 0) {
+                container.innerHTML = '<p class="text-slate-300 italic text-center">아직 등록된 키워드가 없습니다.</p>';
+                document.getElementById('ai-insight').classList.add('hidden');
+                return;
+            }
+
+            container.innerHTML = entries.map(([word, count]) => {
+                const size = Math.min(1.2 + count * 0.4, 3.5);
+                const docId = wordToDocMap[word];
+                // 관리자 모드일 때 클릭 시 삭제 함수 호출
+                const clickAttr = isAdmin ? `onclick="window.handleDelete('${docId}', '${word}')"` : "";
+                return `<span ${clickAttr} class="word-item font-black ${currentData.color}" style="font-size: ${size}rem;">${word}</span>`;
             }).join('');
 
-            container.innerHTML = cloudHtml || '<p class="text-slate-300 italic">데이터 로딩 중...</p>';
-            
-            if(filtered.length > 0) {
-                const words = Object.keys(counts);
-                if(words.length >= 2) {
-                    let shuffled = [...words].sort(() => Math.random() - 0.5);
-                    while(shuffled.length < 10) shuffled = shuffled.concat(shuffled);
-                    let h = "";
-                    for(let i=0; i<3; i++) {
-                        h += `<p class="text-slate-600 text-sm">● ${sentenceEngine[currentTab][i].replace('{w1}', shuffled[i*2]).replace('{w2}', shuffled[i*2+1])}</p>`;
-                    }
-                    document.getElementById('insight-list').innerHTML = h;
-                    document.getElementById('ai-insight').classList.remove('hidden');
-                }
-            }
+            generateCombinedInsights(counts);
         }
+
+        function generateCombinedInsights(counts) {
+            const insightBox = document.getElementById('ai-insight');
+            const insightList = document.getElementById('insight-list');
+            const allWords = Object.keys(counts);
+            if (allWords.length < 1) { insightBox.classList.add('hidden'); return; }
+
+            let shuffledWords = [...allWords].sort(() => Math.random() - 0.5);
+            while(shuffledWords.length < 10) shuffledWords = shuffledWords.concat(shuffledWords);
+
+            let html = "";
+            for (let i = 0; i < 3; i++) {
+                const w1 = shuffledWords[i*2], w2 = shuffledWords[i*2+1];
+                const text = sentenceEngine[currentTab][i].replace('{w1}', `<span class="highlight-word">${w1}</span>`).replace('{w2}', `<span class="highlight-word">${w2}</span>`);
+                html += `<div class="insight-item"><p class="text-slate-600 text-sm font-medium">● ${text}</p></div>`;
+            }
+            insightList.innerHTML = html;
+            insightBox.classList.remove('hidden');
+        }
+
+        function renderGuidelines() {
+            const container = document.getElementById('guidelines');
+            const data = infoSet[currentTab];
+            document.getElementById('input-title').innerText = (currentTab === 'student' ? '학생' : currentTab === 'parent' ? '학부모' : '교직원') + "으로서 실천할 성숙한 약속";
+            document.getElementById('guideline-title').innerText = "성숙한 " + (currentTab === 'student' ? '학생' : currentTab === 'parent' ? '학부모' : '교직원') + "의 책임";
+            container.innerHTML = data.rules.map((g, i) => `<div class="flex gap-4 items-center"><div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center font-bold text-xs">${i+1}</div><p class="font-medium text-slate-100">${g}</p></div>`).join('');
+        }
+
+        function renderAll() { renderGuidelines(); renderCloud(); }
+
+        // --- 초기화 및 실시간 감시 ---
+        signInAnonymously(auth).then(() => {
+            // 글 목록 감시
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'pledges'), (snap) => {
+                allResponses = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAll();
+            });
+            // 시스템 설정(잠금) 감시
+            onSnapshot(doc(db, 'artifacts', appId, 'public', 'settings', 'status'), (docSnap) => {
+                if(docSnap.exists()) {
+                    isSystemLocked = docSnap.data().locked;
+                    updateLockUI();
+                }
+            });
+        });
 
         document.getElementById('pledge-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if(isSystemLocked) return;
+            if(isSystemLocked) { alert("지금은 작성 기간이 아닙니다."); return; }
             const input = document.getElementById('pledge-input');
+            const btn = document.getElementById('submit-btn');
             const text = input.value.trim();
             if(!text) return;
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'pledges'), {
-                role: currentTab, text: text, timestamp: new Date().toISOString()
-            });
-            input.value = '';
+
+            btn.disabled = true;
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'pledges'), {
+                    role: currentTab, text: text, timestamp: new Date().toISOString()
+                });
+                input.value = '';
+            } finally { btn.disabled = false; }
         });
     </script>
 </body>
