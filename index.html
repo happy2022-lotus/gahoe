@@ -166,12 +166,21 @@
             }
         };
 
+        // ★ 수정됨: 경로를 짝수(6개)로 맞추기 위해 config 문서를 지정
         window.toggleSystemLock = async () => {
             if(!isAdmin) return;
             const newState = !isSystemLocked;
             try {
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'settings', 'status'), { locked: newState });
-            } catch(e) { console.error("잠금 설정 실패:", e); }
+                const lockRef = doc(db, 'artifacts', appId, 'public', 'settings', 'status', 'config');
+                await setDoc(lockRef, { 
+                    locked: newState,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+                console.log("잠금 상태 변경 요청 성공:", newState);
+            } catch(e) { 
+                console.error("잠금 설정 실패:", e); 
+                alert("잠금 설정에 실패했습니다: " + e.message);
+            }
         };
 
         window.handleDelete = async (docId, word) => {
@@ -210,9 +219,9 @@
 
         // --- 기존 데이터 로직 (유지) ---
         const sentenceEngine = {
-            student: ["우리 학생들은 {w1}의 자세로 친구를 대하며 {w2} 학교를 만듭니다.", "{w1}을(를) 실천하여 {w2}의 가치가 살아있는 교실을 가꾸겠습니다.", "우리는 {w1}와(과) {w2}의 태도로 서로의 권리를 존중하겠습니다.", "{w1}을(를) 바탕으로 선생님과 소통하며 {w2}의 책임을 다하겠습니다.", "가회중의 미래로서 {w1}와(과) {w2}가 공존하는 문화를 약속합니다."],
-            parent: ["학부모로서 {w1} 교육에 힘쓰며 학교의 {w2} 활동을 지지하겠습니다.", "자녀가 {w1}을(를) 배우고 {w2}하는 마음을 갖도록 함께 노력합니다.", "학교를 신뢰하고 {w1}와(과) {w2}의 마음으로 교육에 동참하겠습니다.", "가정에서 {w1}의 모범을 보이며 자녀의 {w2} 성장을 돕겠습니다.", "우리 아이들이 {w1}하고 {w2}하는 환경에서 자라도록 협력하겠습니다."],
-            school: ["교직원 모두는 {w1}의 환경을 조성하여 {w2} 교육을 실천하겠습니다.", "학생들의 {w1}를 존중하고 {w2}의 원칙을 지키는 교사가 되겠습니다.", "{w1} 기반의 지도로 아이들의 {w2} 발달을 적극 지원하겠습니다.", "안전한 학교에서 {w1}와(과) {w2}의 가치가 꽃피도록 노력하겠습니다.", "민주적인 소통으로 {w1}하고 {w2}하는 성숙한 공동체를 이끌겠습니다."]
+            student: ["우리 학생들은 {w1}의 자세로 친구를 대하며 {w2} 학교를 만듭니다.", "{w3}을(를) 실천하여 {w4}의 가치가 살아있는 교실을 가꾸겠습니다.", "우리는 {w5}와(과) {w6}의 태도로 서로의 권리를 존중하겠습니다.", "{w2}을(를) 바탕으로 선생님과 소통하며 {w1}의 책임을 다하겠습니다.", "가회중의 미래로서 {w3}와(과) {w5}가 공존하는 문화를 약속합니다."],
+            parent: ["학부모로서 {w1} 교육에 힘쓰며 학교의 {w2} 활동을 지지하겠습니다.", "자녀가 {w3}을(를) 배우고 {w4}하는 마음을 갖도록 함께 노력합니다.", "학교를 신뢰하고 {w5}와(과) {w6}의 마음으로 교육에 동참하겠습니다.", "가정에서 {w3}의 모범을 보이며 자녀의 {w1} 성장을 돕겠습니다.", "우리 아이들이 {w4}하고 {w2}하는 환경에서 자라도록 협력하겠습니다."],
+            school: ["교직원 모두는 {w1}의 환경을 조성하여 {w2} 교육을 실천하겠습니다.", "학생들의 {w3}를 존중하고 {w4}의 원칙을 지키는 교사가 되겠습니다.", "{w5} 기반의 지도로 아이들의 {w6} 발달을 적극 지원하겠습니다.", "안전한 학교에서 {w7}와(과) {w1}의 가치가 꽃피도록 노력하겠습니다.", "민주적인 소통으로 {w4}하고 {w2}하는 성숙한 공동체를 이끌겠습니다."]
         };
 
         const infoSet = {
@@ -245,8 +254,6 @@
 
             const filtered = allResponses.filter(r => r.role === currentTab);
             const counts = {};
-            
-            // 데이터 매핑 시 문서 ID도 함께 저장
             const wordToDocMap = {}; 
 
             filtered.forEach(r => {
@@ -267,7 +274,6 @@
             container.innerHTML = entries.map(([word, count]) => {
                 const size = Math.min(1.2 + count * 0.4, 3.5);
                 const docId = wordToDocMap[word];
-                // 관리자 모드일 때 클릭 시 삭제 함수 호출
                 const clickAttr = isAdmin ? `onclick="window.handleDelete('${docId}', '${word}')"` : "";
                 return `<span ${clickAttr} class="word-item font-black ${currentData.color}" style="font-size: ${size}rem;">${word}</span>`;
             }).join('');
@@ -311,12 +317,15 @@
                 allResponses = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderAll();
             });
-            // 시스템 설정(잠금) 감시
-            onSnapshot(doc(db, 'artifacts', appId, 'public', 'settings', 'status'), (docSnap) => {
+
+            // ★ 수정됨: 실시간 잠금 상태 감시 (경로 config 추가)
+            onSnapshot(doc(db, 'artifacts', appId, 'public', 'settings', 'status', 'config'), (docSnap) => {
                 if(docSnap.exists()) {
                     isSystemLocked = docSnap.data().locked;
-                    updateLockUI();
+                } else {
+                    isSystemLocked = false; 
                 }
+                updateLockUI();
             });
         });
 
@@ -334,6 +343,8 @@
                     role: currentTab, text: text, timestamp: new Date().toISOString()
                 });
                 input.value = '';
+            } catch(e) {
+                alert("등록에 실패했습니다.");
             } finally { btn.disabled = false; }
         });
     </script>
